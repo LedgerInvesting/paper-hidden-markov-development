@@ -1,0 +1,183 @@
+Loss development modelling in actuarial science is the practice
+of predicting the total losses incurred from all reported
+and settled claims on a set of insurance policies. 
+At any moment in time, these so-called \textit{ultimate} losses,
+less the losses paid on already reported claims, 
+constitute the overall loss reserves, generally referred to as
+\textit{incurred but not reported} (IBNR).
+The IBNR amount includes future payments on
+claims already reported (`incurred by not enough reported'),
+as well as payments for claims not yet reported (`incurred by not
+yet reported').
+In general or non-life insurance, IBNR can be substantial as it may
+take years for all claims on a set of policies to be reported and settled.
+Therefore, the accurate estimation of IBNR is key to evaluating an insurance company's
+performance and solvency \citep{beard1960,bornhuetter1972,friedland2010,englandverrall2002,wuthrich2008}.
+Transparent assessment of the uncertainty in IBNR 
+is also critical to the legal responsibilities
+of insurers and reinsurers, such as for the Solvency II directive
+\citep{england2019,frohlich2018,munroe2018}.
+
+Estimation of loss reserves is a challenging prediction problem
+that has received considerable attention from actuaries, econometricians,
+and statisticians for decades 
+\citep[e.g. for some key developments, see][]{bornhuetter1972,clarke1974,
+taylor1977,taylor1983,mack1993,barnett2000,englandverrall2001,englandverrall2002,
+taylor2003,wuthrich2008}. From early deterministic and 
+algebraic approaches \citep[e.g.][]{scurfield1968,
+bornhuetter1972,clarke1974,taylor1977}, loss development modelling has
+advanced to utilise a wide, and growing, variety of statistical methods, 
+including parametric and non-parametric regressions \citep{mack1994,englandverrall2001,
+englandverrall2002,lally2018}, Bayesian estimation \citep{englandverrall2002,dealba2002,
+zhang2012,meyers2015}, differential equations \citep{gesmann2020}, and 
+neural networks and machine learning methods 
+\citep{kunce2017,kuo2019,almudafer2022}. Despite their differences, the majority
+of these approaches are applied to aggregated
+insurance risks, typically displayed as a triangular matrix of experience
+periods and development periods or lags
+called a \textit{loss triangle} (see Figure \ref{fig:schematic}). 
+Each experience period represents losses
+on a distinct set of policies, commonly losses from all 
+policies with accidents occuring in a specific
+time period, and each development lag 
+records the cumulative or incremental
+development of those losses through time since reporting.
+
+A key inferential quantity from any loss development
+model is the set of multiplicative factors transforming 
+the losses at development period one to
+the ultimate losses at development period $\infty$,
+known as the \textit{loss development factors} or \textit{link ratios}. 
+While many models include link ratios as an explicit parameter to be 
+inferred, notably the family of chain ladder methods
+\citep[e.g.][]{mack1993,englandverrall2002},
+others derive link ratios as a generated quantity \citep{englandverrall2001,meyers2015}. 
+Ideally, link ratios will smoothly decline over time towards unity,
+but in practice often include periods of volatility, particularly
+for early development periods, and may further encode systematic
+and non-systematic effects across experience periods or date of
+development evaluation (e.g. the influence of the Covid-19 pandemic).
+Depending on the degree of volatility and the amount of data available,
+link ratios estimated from a triangle of finite
+risks will be insufficient to infer the ultimate losses for each experience period,
+because losses may still be emerging at the latest development period available
+in the data. Thus, estimation of ultimate losses will require extending the link ratios
+to outside the domains of the focal triangle to include \textit{tail factors}.
+Like general loss development modelling, tail factor estimation has had its own expansive history
+of deterministic and stochastic methods \citep{tailfactors2013}, and is of particular
+importance in `long-tailed' lines of business, such as workers' compensation or general
+liability, where experience periods might display continued loss cost growth and 
+volatility at relatively late development lags.
+
+Of the various approaches to calculating tail factors, many 
+use a second model fit to a portion
+of the focal triangle that conveys how the triangle may behave
+in the tail \citep{tailfactors2013}, or to the set of link ratios
+directly from the first model. These models typically 
+infer a parametric, monotonically
+increasing growth curve of losses from the training data, 
+such as various forms of
+inverse power curves \citep[e.g.][]{sherman1984,evans2015,clark2017}.
+The link ratios derived from this tail model are then appended to
+the link ratios estimated from the primary loss development model
+to produce predictions an
+arbitrary number of development lags into the future.
+For clarity, the primary link ratios will be referred to
+in this paper as the `body' link ratios to distinguish them from 
+link ratios estimated in the tail.
+Crucially, this two-step process includes a number of 
+subjective decisions. 
+The body-to-tail
+switch-over development lag is frequently chosen
+to reflect when the development process settles to a
+reasonable plateau, while the training windows for
+both models will be chosen based on which sections of
+the triangle best match each model's assumptions.
+For instance, including periods
+of non-monotonic growth into tail models might bias
+tail factors unreasonably high. These decisions
+are difficult to reproduce and
+opens analysts to many `researchers degrees of freedom' \citep{simmons2011}
+ -- selecting one approach among many possible
+ alternatives that might have non-trivial impacts
+ on predicting ultimate loss.
+
+Methods that simultaneously estimate body
+and tail link ratios 
+present an attractive alternative
+to traditional two-step processes. However, only a few
+solutions have been proposed.
+\cite{englandverrall2001} presented a generalised
+additive model for smooth estimation of loss development
+factors that can be extrapolated to points futher
+than the existing data. Although flexible and able to
+integrate different functional forms and covariates
+of loss development processes, this approach
+still necessitates careful selection of training data
+to include in the model so that regions of volatility
+do not bias loss development curves. Generalised additive models
+further require selecting the family of splines and
+number of knots to apply, which may lead to another
+set of decisions analysts must act on.
+\cite{zhang2012}, alternatively,
+implemented a hierarchical Bayesian logistic growth curve model to
+cumulative loss data. However, fitting a single parametric
+curve that assumes monotonicity in expectation might under-estimate
+systematic volatility in portions of the triangle that
+analysts do not want to label as residual noise.
+Finally, \cite{verrall2012} use reversible jump Markov
+chain Monte Carlo to combine a Bayesian chain ladder model,
+applied before some tail cut-off point, with an exponential
+decay process after the cut-off, and allow the model to infer
+where the cut-off should occur. Additionally, 
+\cite{verrall2015} demonstrate how the same model
+can be estimated in a Bayesian model averaging context.
+Although this approach is arguably the most flexible,
+it requires either bespoke sampling algorithms (i.e. reversible
+jump Monte Carlo) or
+multiple model fits (for model averaging purposes),
+which may dissuade analysts and researchers.
+
+This paper proposes the use of hidden Markov models
+to simultaneously estimate body and tail link ratios
+in a single model from a variety of loss triangles. 
+Hidden Markov models are 
+primarily discrete mixture models postulating an unknown 
+latent state
+underlying and generating patterns of observed data,
+and have found a multitude of applications, 
+from speech recognition \citep[e.g.][]{rabiner1989}
+to animal behaviour \citep[e.g.][]{leos2017}.
+Indeed, Markov processes have been previously used
+in micro-level claim 
+modelling \citep[e.g.][]{hesselager1994}, but
+have not been applied to aggregate insurance
+loss triangles.
+As described in this paper, hidden Markov 
+development models decompose 
+a loss triangle into a sequence of body and tail
+processes.
+Hidden Markov models are easily fit
+in existing, open-source software, and can cater
+for complex data-generating assumptions,
+such as understanding the impact of covariates
+or including non-parametric patterns of loss development 
+\citep{englandverrall2001},
+Moreover, the approach presented here is flexible
+enough to integrate any of the parametric and non-parametric
+models that have been presented in the actuarial literature
+for modelling body and tail processes.
+
+Below, the hidden Markov model is formulated
+and validated with simulated examples, and 
+subsequently compared
+to a traditional two-step process using
+a number of data sets. The hidden Markov
+models are fit using Bayesian estimation
+in Stan \citep{stan2017} following a modern Bayesian
+workflow \citep{gelman2020}.
+All Python and Stan code, and all datasets, to 
+reproduce the results
+are accessible at the Github repository
+\url{https://github.com/LedgerInvesting/hidden-markov-development-2024}.
+

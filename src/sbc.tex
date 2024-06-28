@@ -1,0 +1,44 @@
+To validate the hidden Markov model, we use
+both simulated examples (shown in the results)
+to build intuition, alongside
+simulation-based calibration \citep{talts2018,modrak2023}.
+Simulation-based calibration leverages the self-consistency
+of the Bayesian joint distribution of parameters and
+data: fitting a Bayesian model to datasets generated
+from its prior predictive distribution and averaging 
+over datasets should return the prior distribution.
+
+Focusing on the base HMM model variant, 1000 
+full-triangles with $N = M = 10$ were generated
+from the prior predictive distribution, and the
+HMM model fit to each upper diagonal $\mathcal{Y}$.
+The prior distributions were the same as in
+equation \ref{eq:hmm}, except for the priors
+on $(\gamma_{1}, \gamma_{2})$, which were 
+given more informative normally-distributed priors
+with locations and scales of $(-3, -0.25)$ and
+$(-1, 0.1)$, respectively. Due to the
+multiplicative autoregressive forms in the
+location and scales of the likelihood in
+equation \ref{eq:hmm}, particularly
+large values for $\sigma$ can cause overflow
+in the sampled data.
+
+Each model was summarised by
+calculating the rank statistics of quantities
+of interest.
+The rank statistic is the number of times a
+simulated value is greater than the posterior values,
+and should be approximately uniformly distributed
+if the model has been implemented correctly and is
+unbiased \citep{talts2018}. To reduce the autocorrelation
+in the posterior distributions, the posteriors were
+thinned to every 10th posterior draw.
+Rank statistics
+were calculated for each parameter in the HMM model,
+as well as the joint log likelihood and
+an the ultimate loss prediction at data point
+$(i=1, j=10)$, since \cite{modrak2023} recommend
+using test quantities that average over the entire
+data space in evaluating SBC.
+

@@ -1,0 +1,46 @@
+\documentclass[12pt]{article}
+\usepackage{preprint}
+
+\input{\src/title.tex}
+\author[1]{Conor Goold}
+\affil[1]{Ledger Investing, Inc.}
+
+\begin{document}
+\maketitle
+
+\input{\src/abstract.tex}
+
+\section{Introduction}
+\label{sec:introduction}
+\input{\src/introduction.tex}
+
+\section{Materials and methods}
+\label{sec:methods}
+
+\subsection{Hidden Markov development model}
+\input{\src/formulation.tex}
+
+\subsection{Two-step approach}
+\input{\src/traditional.tex}
+
+\subsection{Simulation-based calibration}
+\input{\src/sbc.tex}
+
+\subsection{Datasets and model performance}
+\input{\src/datasets.tex}
+
+\section{Results}
+\label{sec:results}
+\input{\src/results.tex}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{\src/discussion.tex}
+
+\section{Competing interests}
+\label{sec:interests}
+\input{\src/interests.tex}
+
+\bibliographystyle{apa}
+\bibliography{\src/references.bib}
+\end{document}

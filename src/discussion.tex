@@ -1,0 +1,172 @@
+This paper has proposed
+a hidden Markov loss development model
+for insurance loss triangles that combines
+body and tail development models,
+and automates the selection of body-to-tail
+switch-over points.
+Simulation-based calibration validated
+the hidden Markov model implementation
+as being unbiased, and across
+a range of different datasets,
+the hidden Markov model variants
+provided similar results to, 
+and often out-performed,
+the traditional two-step approach.
+The hidden Markov models'
+automated detection
+of body and tail processes
+more gracefully captures
+loss development dynamics
+that may vary over triangle
+experience periods, as well as
+reduce 
+analysts' degrees of freedom
+that make the traditional
+two-step approach reliant
+on difficult-to-reproduce
+and variable subjective
+decisions.
+
+The hidden Markov development model 
+posits a clear data-generating process for
+loss development dynamics.
+Although referred to here as `body' and `tail',
+these two latent states might equivalently
+be thought of as flexible and smooth
+periods of loss development, and can interchange
+depending on the context, as in the 
+HMM-$\nu$ model variant here.
+In this way, the hidden Markov model is not a strictly
+analagous implementation of the two-step
+approach,
+as the two-step approach allows analysts
+to choose tail model training data windows
+that overlap the body-to-tail cutoff point.
+Thus, the same data points may be used in
+estimation of body and tail processes, rather
+than a discrete cutoff point between the two.
+Despite this flexibility, the two-step approach
+is not a single generative model, and should an
+analyst choose values for $\tau$ and $\rho_{1,2}$
+that are not representative of a particular
+experience period, the predictions from
+such a model could be extremely biased,
+as shown in the example of Figure \ref{fig:numerical}.
+While the hidden Markov model may still
+make relatively poor predictions for those experience
+periods with little data (e.g. see the last
+column of panel A in Figure \ref{fig:numerical}),
+uncertainty in the true latent state, $\bm{z}$,
+is more-accurately accounted for.
+
+Although most of the hidden Markov model variants
+performed consistently better on average
+than the two-step
+approach on the curated industry datasets
+of \cite{meyers2015}, the approaches were
+more similar on the five literature triangles.
+These two sets of data present different
+case studies. The industry triangles
+have been selected to encompass relatively
+large insurers with mostly stable
+loss dynamics \citep[see][appendix A]{meyers2015}
+over a period of 10 years.
+Due to the number of triangles, the two-step
+approach's cutoff points, $\tau$ and $\rho_{1,2}$,
+were chosen based on average empirical link
+ratios, which might not have been the best
+selection points for some triangles.
+By contrast, the literature triangles encompass
+more accident periods per triangle but also smaller
+books of business \citep[e.g. the medium-sized
+triangles from][]{balona2022}, and
+more variability in the tail than 
+present in the industry triangles.
+Previous papers on loss development models
+combining body and tail dynamics
+have not considered the breadth of triangles
+and lines of business used here. For instance,
+\cite{englandverrall2001}, \cite{verrall2012},
+and \cite{verrall2015} all
+used a single triangle to illustrate their approaches,
+and 
+\cite{zhang2012} used a dataset of
+10 workers' compensation triangles and
+did not consider other lines of business or
+more volatile triangles. Moreover,
+the previous papers did not compare
+their approaches to the more common
+two-step approach applied in actuarial
+practice.
+The datasets used here are provided alongside
+this article in the repository
+for ease of access
+and comparison of other loss development
+modelling approaches.
+
+Both the hidden Markov and two-step
+approaches demonstrated relatively poor
+calibration on the out-of-sample
+data from the \cite{meyers2015}
+dataset (Figure \ref{fig:percentiles}). 
+Primarily, 
+the out-of-sample
+predictions were often too
+uncertain, producing a
+predominance of percentiles falling
+within the central range of
+possible percentiles.
+Few articles have shown calibration
+plots from fully-Bayesian posterior
+distributions on out-of-sample
+loss development data, so this pattern of calibration requires
+further inspection in the literature.
+\cite{meyers2015} reports on 
+calibration using the same data set,
+showing relatively well-calibrated
+predictions. However, we note
+that \cite{meyers2015} calculated
+the percentile of the total ultimate
+losses in each triangle on a lognormal
+distribution with mean and variance
+informed by the total ultimate losses
+from their models. Thus, these
+are not directly comparable because
+the results above average percentiles
+over each posterior predictive distribution
+in the test data, not a distribution informed
+by just the average of posterior predictive
+distributions.
+
+The hidden Markov models presented here
+could be extended in a number of useful
+ways. Notably, the transition matrix
+probabilities might be parametric
+or non-parametric functions of covariates,
+such as premium volume in each experience
+period or inflation levels in each
+calendar period, or include
+hierarchical effects for experience
+and development periods.
+The Bayesian framework, alongside the
+hidden Markov models implemented
+here and available in the supplementary
+material, make these extensions
+highly accessible.
+Additionally, the hidden Markov
+model framework is general enough
+to include any body or tail
+model, not just the chain ladder
+and generalised Bondy forms.
+For instance, there are a
+number of inverse power curves
+to use for tail modelling
+\citep{tailfactors2013,evans2015,clark2017},
+and extensions and variations on the chain ladder
+model have been commonplace \citep{englandverrall2002}.
+Although the analyses in this paper focused on
+paid losses, the same models could be applied
+to estimates of reported losses (i.e.
+paid loss plus estimates of reserve),
+or joint modelling of both paid and reported
+losses \citep[e.g. see][for one approach]{zhang2010}.

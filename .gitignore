@@ -1,0 +1,11 @@
+**/*.aux
+**/*.log
+**/*.out
+**/*.blg
+**/*.bbl
+
+**/x.log
+
+**/*.DS_Store
+
+**/__pycache__

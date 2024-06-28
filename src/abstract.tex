@@ -1,0 +1,23 @@
+Loss development modelling is the actuarial practice of predicting the 
+total \textit{ultimate} losses incurred on a set of policies once all 
+claims are reported and settled. This poses a challenging prediction 
+task as losses frequently take years to fully emerge from 
+reported claims, and not all claims might yet be reported.
+Loss development models frequently estimate a set of 
+\textit{link ratios} from insurance loss triangles, which are multiplicative 
+factors transforming losses at one time point to ultimate. However, 
+link ratios estimated using classical methods typically underestimate 
+ultimate losses and cannot be extrapolated outside the domains of the 
+triangle, requiring extension by \textit{tail factors} from another model. 
+Although flexible, this two-step process relies on
+subjective decision points that might bias inference.
+Methods that jointly estimate `body’ link ratios and 
+smooth tail factors offer an attractive 
+alternative. This paper proposes a novel application of Bayesian 
+hidden Markov models to loss development modelling, where discrete, 
+latent states representing body and tail processes are automatically 
+learned from the data. The hidden Markov development model 
+is found to perform comparably to, and frequently better than, the 
+two-step approach on numerical examples and industry datasets.
+
+\textit{Keywords}: actuarial science, loss reserving, mixture modelling, time series
