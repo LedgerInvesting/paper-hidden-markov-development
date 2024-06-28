@@ -27,9 +27,9 @@ which can be installed after the above requiremnets using
 
    install_cmdstan
 
-See [CmdStanPy's installation page](
+See (CmdStanPy's installation page)[
 https://mc-stan.org/cmdstanpy/installation.html#cmdstan-installation
-) for more information.
+] for more information.
 
 Each of the Python files in the :code:`code/` directory can
 be run as standalone modules, using:

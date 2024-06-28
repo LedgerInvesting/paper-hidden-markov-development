@@ -43,9 +43,11 @@ STAN_CONFIG = {
     "seed": SEED,
     "show_progress": False,
 }
-        
+
+
 def load_data(lob: str) -> List[Dict[str, List[Union[float, int]]]]:
     return json.load(open(DATA[lob], "r"))
+
 
 def stan_data(d: List) -> Dict[str, int | float | np.ndarray]:
     d = np.array(d)[..., 0]
@@ -53,7 +55,12 @@ def stan_data(d: List) -> Dict[str, int | float | np.ndarray]:
     index = np.array([[i * M + j for j, _ in enumerate(yy)] for i, yy in enumerate(d)])
     train_i, test_i = (
         np.concatenate([i[:n] for i, n in zip(index, range(N, 0, -1))]),
-        np.concatenate([i[-n:] if n else np.array([], dtype=int) for i, n in zip(index, range(0, N))]),
+        np.concatenate(
+            [
+                i[-n:] if n else np.array([], dtype=int)
+                for i, n in zip(index, range(0, N))
+            ]
+        ),
     )
 
     ii, jj = (
@@ -61,7 +68,7 @@ def stan_data(d: List) -> Dict[str, int | float | np.ndarray]:
         np.array([list(range(1, len(yy) + 1)) for yy in d]),
     )
 
-    MAX_PRED = max(d.flatten() / SCALER) * 100;
+    MAX_PRED = max(d.flatten() / SCALER) * 100
 
     return {
         "T": len(train_i),
@@ -78,6 +85,7 @@ def stan_data(d: List) -> Dict[str, int | float | np.ndarray]:
         "learn": 1,
         "MAX_PRED": MAX_PRED,
     }
+
 
 def fit_hmm(data):
     base = []
@@ -104,6 +112,7 @@ def fit_hmm(data):
         )
     return base, nu, lag
 
+
 def fit_traditional(data):
     fits = []
     for i, (key, d) in enumerate(tqdm(data.items())):
@@ -115,53 +124,59 @@ def fit_traditional(data):
         )
     return fits
 
+
 def elpd(d, *fits):
     indices = stan_data(d)
     test = indices["B"][55:]
     elpds = [
-        logsumexp(f.log_lik.T[test], axis=1) - np.log(f.log_lik.shape[0])
-        for f
-        in fits
+        logsumexp(f.log_lik.T[test], axis=1) - np.log(f.log_lik.shape[0]) for f in fits
     ]
     return elpds
+
 
 def squared_error(d, *fits):
     indices = stan_data(d)
     test = indices["B"][55:]
     y = indices["y"][test]
-    se = [
-        (f.y_tilde.T[test].mean(axis=1) - y)**2
-        for f
-        in fits
-    ]
+    se = [(f.y_tilde.T[test].mean(axis=1) - y) ** 2 for f in fits]
     return se
+
 
 def percentile(d, *fits):
     indices = stan_data(d)
     test = indices["B"][55:]
     y = indices["y"][test]
-    p = [
-        np.mean(f.y_tilde[:,test] <= y, axis=0)
-        for f
-        in fits
-    ]
+    p = [np.mean(f.y_tilde[:, test] <= y, axis=0) for f in fits]
     return p
+
 
 def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
     indices = stan_data(data[next(iter(data))])
     test = indices["B"][55:]
-    ii = indices["ii"][-len(test):]
-    jj = indices["jj"][-len(test):]
-    raw_elpds = np.array([elpd(d, *fits) for d, fits in zip(data.values(), zip(*models.values()))])
-    ses = np.array([squared_error(d, *fits) for d, fits in zip(data.values(), zip(*models.values()))])
-    percentiles = np.array([percentile(d, *fits) for d, fits in zip(data.values(), zip(*models.values()))])
+    ii = indices["ii"][-len(test) :]
+    jj = indices["jj"][-len(test) :]
+    raw_elpds = np.array(
+        [elpd(d, *fits) for d, fits in zip(data.values(), zip(*models.values()))]
+    )
+    ses = np.array(
+        [
+            squared_error(d, *fits)
+            for d, fits in zip(data.values(), zip(*models.values()))
+        ]
+    )
+    percentiles = np.array(
+        [percentile(d, *fits) for d, fits in zip(data.values(), zip(*models.values()))]
+    )
     z_stars = np.array(
         [
-            [(f.z_star - 1).mean(axis=0).reshape((10, 10)) for f in fits if hasattr(f, "z_star")] 
-            for fits 
-            in zip(*models.values())
+            [
+                (f.z_star - 1).mean(axis=0).reshape((10, 10))
+                for f in fits
+                if hasattr(f, "z_star")
+            ]
+            for fits in zip(*models.values())
         ]
-    ) 
+    )
     elpds = Score(raw_elpds, np.sum, ii, jj)
 
     def sqrt_mean(x, axis):
@@ -184,6 +199,7 @@ def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
 
     return elpds, rmse, percentiles, z_stars
 
+
 def main() -> None:
     for lob in DATA:
         logger.info(f"Backtesting line of business {lob}")
@@ -193,13 +209,14 @@ def main() -> None:
         score(
             data,
             {
-                "hmm": hmm, 
+                "hmm": hmm,
                 "hmm_nu": hmm_nu,
-                "hmm_lag": hmm_lag, 
-                "traditional": traditional
-            }, 
-            lob
+                "hmm_lag": hmm_lag,
+                "traditional": traditional,
+            },
+            lob,
         )
+
 
 if __name__ == "__main__":
     main()

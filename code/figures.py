@@ -4,7 +4,16 @@ import numpy as np
 import logging
 import matplotlib.pyplot as plt
 
-from plot import plot_atas, plot_scores, plot_percentiles, plot_zstars, plot_ranks, plot_z_accuracy, plot_literature_results, plot_numerical
+from plot import (
+    plot_atas,
+    plot_scores,
+    plot_percentiles,
+    plot_zstars,
+    plot_ranks,
+    plot_z_accuracy,
+    plot_literature_results,
+    plot_numerical,
+)
 from __init__ import logger
 
 NUMERICAL = {
@@ -20,20 +29,20 @@ BACKTEST = {
 
 SCORES = {
     "PP": (
-       "results/elpd-PP-filter-1e2.json",
-       "results/rmse-PP.json",
+        "results/elpd-PP-filter-1e2.json",
+        "results/rmse-PP.json",
     ),
     "WC": (
-       "results/elpd-WC-filter-1e2.json",
-       "results/rmse-WC.json",
+        "results/elpd-WC-filter-1e2.json",
+        "results/rmse-WC.json",
     ),
     "CA": (
-       "results/elpd-CA-filter-1e2.json",
-       "results/rmse-CA.json",
+        "results/elpd-CA-filter-1e2.json",
+        "results/rmse-CA.json",
     ),
     "OO": (
-       "results/elpd-OO-filter-1e2.json",
-       "results/rmse-OO.json",
+        "results/elpd-OO-filter-1e2.json",
+        "results/rmse-OO.json",
     ),
 }
 
@@ -93,22 +102,30 @@ LITERATURE_ZSTARS = {
 }
 
 
-
 def load(file: str) -> Dict[str, Any]:
     return json.load(open(file, "r"))
+
 
 def _dict_ndarray(d: Dict[str, List]) -> Dict[str, np.ndarray]:
     return {k: np.asarray(v) for k, v in d.items()}
 
+
 def main() -> None:
     numerical = {name: _dict_ndarray(load(file)) for name, file in NUMERICAL.items()}
     backtest = {lob: load(file) for lob, file in BACKTEST.items()}
-    scores = {lob: (_dict_ndarray(load(elpd)), _dict_ndarray(load(rmse))) for lob, (elpd, rmse) in SCORES.items()}
-    percentiles = _dict_ndarray({lob: load(props) for lob, props in PERCENTILES.items()})
+    scores = {
+        lob: (_dict_ndarray(load(elpd)), _dict_ndarray(load(rmse)))
+        for lob, (elpd, rmse) in SCORES.items()
+    }
+    percentiles = _dict_ndarray(
+        {lob: load(props) for lob, props in PERCENTILES.items()}
+    )
     zstars = _dict_ndarray({lob: load(zstar) for lob, zstar in ZSTARS.items()})
     ranks = _dict_ndarray(load(RANKS))
     literature = {name: load(file) for name, file in LITERATURE.items()}
-    literature_scores = {name: (load(file[0]), load(file[1])) for name, file in LITERATURE_SCORES.items()}
+    literature_scores = {
+        name: (load(file[0]), load(file[1])) for name, file in LITERATURE_SCORES.items()
+    }
     literature_zstars = {name: load(file) for name, file in LITERATURE_ZSTARS.items()}
     plot_numerical(numerical)
     plot_atas(backtest)
@@ -118,6 +135,7 @@ def main() -> None:
     plot_ranks(ranks)
     plot_z_accuracy(ranks["z"])
     plot_literature_results(literature, literature_scores, literature_zstars)
+
 
 if __name__ == "__main__":
     logger.info("Generating figures.")

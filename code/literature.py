@@ -43,20 +43,34 @@ TRIANGLES = {
     "Verrall & Wuthrich (2015)": "data/verrall-wuthrich-2015.json",
 }
 
+
 def flatten(x: List[List]) -> np.ndarray:
     return np.array([v for i in x for v in i])
 
+
 def stan_data(triangle: List[List[float]]) -> np.ndarray:
     N = M = len(triangle)
-    index_raw = [(i, j) for i, j in enumerate([j for j, period in enumerate(triangle) for v in period])]
-    index = np.array([
-        [i for i, j in index_raw if j == period] + [-9999] * (M - len(v))
-        for period, v in enumerate(triangle)
-    ])
+    index_raw = [
+        (i, j)
+        for i, j in enumerate([j for j, period in enumerate(triangle) for v in period])
+    ]
+    index = np.array(
+        [
+            [i for i, j in index_raw if j == period] + [-9999] * (M - len(v))
+            for period, v in enumerate(triangle)
+        ]
+    )
     mask = index == -9999
     train_i, test_i = (
-        np.concatenate([i[~m][:-1] for i, m, n in zip(index, mask, range(N - 1, 0, -1))]),
-        np.concatenate([i[~m][-1:] if len(i[~m]) > 1 else np.array([], dtype=int) for i, m, n in zip(index, mask, range(N))]),
+        np.concatenate(
+            [i[~m][:-1] for i, m, n in zip(index, mask, range(N - 1, 0, -1))]
+        ),
+        np.concatenate(
+            [
+                i[~m][-1:] if len(i[~m]) > 1 else np.array([], dtype=int)
+                for i, m, n in zip(index, mask, range(N))
+            ]
+        ),
     )
     ii, jj = (
         [[i + 1] * len(yy[~m]) for i, (m, yy) in enumerate(zip(mask, index))],
@@ -115,43 +129,49 @@ def fit_traditional(triangle: List[List[float]], paper: str) -> csp.CmdStanMCMC:
     )
     return traditional
 
+
 def elpd(triangle, models):
     indices = stan_data(triangle)
     test = indices["test"]
     S = models["hmm"].log_lik.shape[0]
-    return np.array([logsumexp(f.log_lik.T[test], axis=1) - np.log(S) for f in models.values()])
+    return np.array(
+        [logsumexp(f.log_lik.T[test], axis=1) - np.log(S) for f in models.values()]
+    )
+
 
 def squared_error(triangle, models):
     indices = stan_data(triangle)
     test = indices["test"]
     y = indices["y"][test]
-    return np.array([(f.y_tilde[:,test].mean(axis=0) - y)**2 for f in models.values()])
+    return np.array(
+        [(f.y_tilde[:, test].mean(axis=0) - y) ** 2 for f in models.values()]
+    )
+
 
 def percentile(d, models):
     indices = stan_data(d)
     test = indices["test"]
     y = indices["y"][test]
-    p = [
-        np.mean(f.y_tilde[:,test] <= y, axis=0)
-        for f
-        in models.values()
-    ]
+    p = [np.mean(f.y_tilde[:, test] <= y, axis=0) for f in models.values()]
     return p
 
+
 def score(models, triangle, paper):
-    paper = re.sub(r"\(|\)| |&|,", "-", paper.lower()).replace("---", "-").replace("--", "-")
+    paper = (
+        re.sub(r"\(|\)| |&|,", "-", paper.lower())
+        .replace("---", "-")
+        .replace("--", "-")
+    )
     indices = stan_data(triangle)
     test = indices["test"]
-    ii = indices["ii"][-len(test):]
-    jj = indices["jj"][-len(test):]
+    ii = indices["ii"][-len(test) :]
+    jj = indices["jj"][-len(test) :]
     raw_elpds = np.expand_dims(elpd(triangle, models), axis=0)
     ses = np.expand_dims(squared_error(triangle, models), axis=0)
     percentiles = np.expand_dims(percentile(triangle, models), axis=0)
     z_stars = np.array(
-        [
-            (f.z_star - 1).mean(axis=0) for f in models.values() if hasattr(f, "z_star")
-        ]
-    ) 
+        [(f.z_star - 1).mean(axis=0) for f in models.values() if hasattr(f, "z_star")]
+    )
 
     elpds = Score(raw_elpds, np.sum, ii, jj)
 
@@ -164,6 +184,7 @@ def score(models, triangle, paper):
     rmse.write(RESULTS + f"/rmse-{paper}.json")
     json.dump(percentiles.tolist(), open(RESULTS + f"/percentiles-{paper}.json", "w"))
     json.dump(z_stars.tolist(), open(RESULTS + f"/zstar-{paper}.json", "w"))
+
 
 def main():
     for paper, file in TRIANGLES.items():
@@ -180,6 +201,7 @@ def main():
             triangle,
             paper,
         )
+
 
 if __name__ == "__main__":
     main()

@@ -3,6 +3,7 @@ import numpy as np
 from dataclasses import dataclass
 import json
 
+
 @dataclass
 class Score(object):
     scores: np.ndarray
@@ -13,8 +14,19 @@ class Score(object):
     def _filter(self, filter: Optional[Callable] = None) -> np.ndarray:
         if filter is None:
             return self.scores
-        keep = [[idx for idx, v in enumerate(zip(*t)) if all(filter(vv) for vv in v)] for t in self.scores]
-        new_scores = np.array([[[e if idx in keep[i] else 0 for idx, e in enumerate(t)] for t in scores] for i, scores in enumerate(self.scores)])
+        keep = [
+            [idx for idx, v in enumerate(zip(*t)) if all(filter(vv) for vv in v)]
+            for t in self.scores
+        ]
+        new_scores = np.array(
+            [
+                [
+                    [e if idx in keep[i] else 0 for idx, e in enumerate(t)]
+                    for t in scores
+                ]
+                for i, scores in enumerate(self.scores)
+            ]
+        )
         return new_scores
 
     def by_model(self, filter: Optional[Callable] = None) -> np.ndarray:
@@ -22,8 +34,18 @@ class Score(object):
         return np.array(list(zip(*(score.mean(axis=0), score.std(axis=0)))))
 
     def by_ultimate(self, filter: Optional[Callable] = None) -> np.ndarray:
-        score = np.array([[e for i, j, e in zip(self.periods, self.lags, t) if j == 10] for t in self._filter(filter).mean(axis=0)])
-        std = np.array([[e for i, j, e in zip(self.periods, self.lags, t) if j == 10] for t in self._filter(filter).std(axis=0)])
+        score = np.array(
+            [
+                [e for i, j, e in zip(self.periods, self.lags, t) if j == 10]
+                for t in self._filter(filter).mean(axis=0)
+            ]
+        )
+        std = np.array(
+            [
+                [e for i, j, e in zip(self.periods, self.lags, t) if j == 10]
+                for t in self._filter(filter).std(axis=0)
+            ]
+        )
         return np.array(list(zip(*(score, std))))
 
     def summary(self, filter: Optional[Callable] = None) -> Dict[str, np.ndarray]:
@@ -47,4 +69,3 @@ class Score(object):
             else:
                 out[k] = v
         return out
-

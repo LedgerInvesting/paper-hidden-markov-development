@@ -3,28 +3,42 @@ import numpy as np
 import scipy.stats as stat
 from functools import partial
 
+
 def ilogit(x: Union[np.ndarray, float]) -> np.ndarray:
     return np.exp(x) / (1 + np.exp(x))
 
-def lognormal_from_mean_variance(mean: float, variance: float, rng: np.random.Generator) -> float:
+
+def lognormal_from_mean_variance(
+    mean: float, variance: float, rng: np.random.Generator
+) -> float:
     mu = np.log(mean**2 / np.sqrt(mean**2 + variance))
     sigma = np.sqrt(np.log(1 + variance / mean**2))
     return stat.lognorm(scale=np.exp(mu), s=sigma).rvs(random_state=rng)
 
-def lognormal_lpdf_from_mean_variance(y: float, mean: float, variance: float, rng: np.random.Generator) -> float:
+
+def lognormal_lpdf_from_mean_variance(
+    y: float, mean: float, variance: float, rng: np.random.Generator
+) -> float:
     mu = np.log(mean**2 / np.sqrt(mean**2 + variance))
     sigma = np.sqrt(np.log(1 + variance / mean**2))
     return stat.lognorm(scale=np.exp(mu), s=sigma).logpdf(y)
 
-def gamma_from_mean_variance(mean: float, variance: float, rng: np.random.Generator) -> float:
+
+def gamma_from_mean_variance(
+    mean: float, variance: float, rng: np.random.Generator
+) -> float:
     rate = mean / variance
     shape = mean**2 / variance
     return stat.gamma(a=shape, scale=rate**-1).rvs(random_state=rng)
 
-def gamma_lpdf_from_mean_variance(y: float, mean: float, variance: float, rng: np.random.Generator) -> float:
+
+def gamma_lpdf_from_mean_variance(
+    y: float, mean: float, variance: float, rng: np.random.Generator
+) -> float:
     rate = mean / variance
     shape = mean**2 / variance
     return stat.gamma(a=shape, scale=rate**-1).logpdf(y)
+
 
 def hmm(
     N: int,
@@ -61,9 +75,9 @@ def hmm(
             mu[i, j] = [0, 0]
             sigma2[i, j] = 0
         else:
-            z[i, j] = generate_z(theta[j][z[i, j - 1], 1]) 
+            z[i, j] = generate_z(theta[j][z[i, j - 1], 1])
             lagged_y = y[i, j - 1]
-            mu[i, j] = [lagged_y * alpha[j - 1], lagged_y * omega ** beta ** lag]
+            mu[i, j] = [lagged_y * alpha[j - 1], lagged_y * omega**beta**lag]
             sigma2[i, j] = np.exp(gamma[0] + gamma[1] * lag + np.log(lagged_y))
             try:
                 distr = stat.lognorm(scale=mu[i, j, z[i, j]], s=np.sqrt(sigma2[i, j]))
@@ -73,6 +87,5 @@ def hmm(
                 breakpoint()
                 y[i, j] = np.nan
                 ll[i, j] = np.nan
-                
-    return y, z, ll
 
+    return y, z, ll

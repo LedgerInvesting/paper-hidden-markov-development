@@ -41,6 +41,7 @@ DataDictType = Dict[str, int | List[float] | List[int]]
 def download_data(lob: str) -> pd.DataFrame:
     return pd.read_csv(DATA_URLS[lob])
 
+
 def make_cells(data: pd.DataFrame, lob: str) -> Dict:
     cols = [
         "GRCODE",
@@ -51,11 +52,12 @@ def make_cells(data: pd.DataFrame, lob: str) -> Dict:
         "CumPaidLoss",
         "EarnedPremDIR",
     ]
-    cells = [Cell(*values) for _, values in data.filter(regex="|".join(cols)).iterrows()]
+    cells = [
+        Cell(*values) for _, values in data.filter(regex="|".join(cols)).iterrows()
+    ]
     if KEEP_CODES[lob]:
         return [cell for cell in cells if cell.code in KEEP_CODES[lob]]
     return [cell for cell in cells if cell.code]
-    
 
 
 def build_development_data(cells: List[Cell]) -> DataDictType:
@@ -67,12 +69,17 @@ def build_development_data(cells: List[Cell]) -> DataDictType:
             raw[cell.code] = [cell]
     return {
         i: np.array(
-            [(cell.paid_loss, cell.incurred_loss, cell.earned_premium) for cell in cells]
-        ).reshape((10, 10, 3)).tolist()
-        for i, (_, cells)
-        in enumerate(raw.items())
+            [
+                (cell.paid_loss, cell.incurred_loss, cell.earned_premium)
+                for cell in cells
+            ]
+        )
+        .reshape((10, 10, 3))
+        .tolist()
+        for i, (_, cells) in enumerate(raw.items())
         if all(cell.paid_loss > 0 for cell in cells)
     }
+
 
 def pull_lob_data(lob: str) -> None:
     data = download_data(lob)
@@ -82,11 +89,12 @@ def pull_lob_data(lob: str) -> None:
         json.dump(development_data, outfile)
     return None
 
+
 def main():
     for lob in DATA_URLS:
         print(f"Pulling {lob} data...")
         pull_lob_data(lob)
 
+
 if __name__ == "__main__":
     main()
-

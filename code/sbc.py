@@ -1,6 +1,7 @@
 """
 Simulation-based calibration of the HMM model.
 """
+
 from typing import Dict, Union
 import cmdstanpy as csp
 import scipy.stats as stat
@@ -37,12 +38,18 @@ STAN_CONFIG = {
     "show_progress": False,
 }
 
+
 def stan_data(y: np.ndarray) -> Dict[str, Union[int, np.ndarray]]:
     N, M = y.shape
     index = np.array([[i * M + j for j, _ in enumerate(yy)] for i, yy in enumerate(y)])
     train_i, test_i = (
         np.concatenate([i[:n] for i, n in zip(index, range(N, 0, -1))]),
-        np.concatenate([i[-n:] if n else np.array([], dtype=int) for i, n in zip(index, range(0, N))]),
+        np.concatenate(
+            [
+                i[-n:] if n else np.array([], dtype=int)
+                for i, n in zip(index, range(0, N))
+            ]
+        ),
     )
     train_y = y.flatten()[train_i]
     test_y = y.flatten()[test_i]
@@ -50,7 +57,7 @@ def stan_data(y: np.ndarray) -> Dict[str, Union[int, np.ndarray]]:
         np.array([[i + 1] * len(yy) for i, yy in enumerate(y)]),
         np.array([list(range(1, len(yy) + 1)) for yy in y]),
     )
-    return { 
+    return {
         "T": len(train_i),
         "T_prime": len(test_i),
         "N": N,
@@ -85,13 +92,7 @@ def generate_data(P: int = P):
             gamma=gamma_rng.rvs(random_state=RNG),
         )
         pi = [1] + [ilogit(pi_star_rng.rvs(random_state=RNG))] * (M - 1)
-        pars |= {
-            "theta": np.array([
-                [ [p, 1 - p], [0, 1] ]
-                for p
-                in pi
-            ])
-        }
+        pars |= {"theta": np.array([[[p, 1 - p], [0, 1]] for p in pi])}
         y, z, ll = hmm(
             N=N,
             M=M,
@@ -106,6 +107,7 @@ def generate_data(P: int = P):
 
     return data
 
+
 def fit_hmm(data):
     fits = []
     for (y, z, ll), pars in tqdm(data):
@@ -116,7 +118,7 @@ def fit_hmm(data):
                     **STAN_CONFIG,
                 ),
                 y,
-                z, 
+                z,
                 ll,
                 pars,
             )
@@ -141,24 +143,19 @@ def _log_epsilon(ranks: np.ndarray, L: int) -> np.ndarray:
         )
     return log_epsilon
 
+
 def rank(fits):
     ranks = {}
     N, M = 10, 10
-    index = np.array([
-        i for i in range(N * M)
-    ]).reshape((N, M))
-    train_index = np.array([idx for i, n in zip(index, range(10, 0, -1)) for idx in i[:n]])
+    index = np.array([i for i in range(N * M)]).reshape((N, M))
+    train_index = np.array(
+        [idx for i, n in zip(index, range(10, 0, -1)) for idx in i[:n]]
+    )
     thin = 10
     for fit, y, z, ll, pars in fits:
         draws_raw = fit.stan_variables()
-        draws = {
-            k: v[::thin]
-            for k, v
-            in draws_raw.items()
-        }
-        pars |= {
-            "pi_": pars["theta"][-1, 0, 0]
-        }
+        draws = {k: v[::thin] for k, v in draws_raw.items()}
+        pars |= {"pi_": pars["theta"][-1, 0, 0]}
         keys = (k for k in draws if k in pars)
         for par in keys:
             if par in ranks:
@@ -171,22 +168,34 @@ def rank(fits):
         else:
             ranks["z"] = [(z_star == z.flatten()[train_index]).mean()]
         if "log likelihood" in ranks:
-            ranks["log likelihood"].append(sum(ll.flatten()[train_index].sum() > draws["log_lik"][:,train_index].sum(axis=1)))
+            ranks["log likelihood"].append(
+                sum(
+                    ll.flatten()[train_index].sum()
+                    > draws["log_lik"][:, train_index].sum(axis=1)
+                )
+            )
         else:
-            ranks["log likelihood"] = [sum(ll.flatten().sum() > draws["log_lik"][:,train_index].sum(axis=1))]
+            ranks["log likelihood"] = [
+                sum(ll.flatten().sum() > draws["log_lik"][:, train_index].sum(axis=1))
+            ]
         tilde_y = "tilde{y}[{1,10}]"
         if tilde_y in ranks:
-            ranks[tilde_y].append(sum(y[0][-1] > draws["y_tilde"][:,9]))
+            ranks[tilde_y].append(sum(y[0][-1] > draws["y_tilde"][:, 9]))
         else:
-            ranks[tilde_y] = [sum(y[0][-1] > draws["y_tilde"][:,9])]
+            ranks[tilde_y] = [sum(y[0][-1] > draws["y_tilde"][:, 9])]
 
     ranks["L"] = max([np.max(rank) for rank in ranks.values()])
-    json.dump({k: np.asarray(v).tolist() for k, v in ranks.items()}, open(RESULTS + "/ranks.json", "w"))
+    json.dump(
+        {k: np.asarray(v).tolist() for k, v in ranks.items()},
+        open(RESULTS + "/ranks.json", "w"),
+    )
+
 
 def main():
     data = generate_data()
     fits = fit_hmm(data)
     rank(fits)
+
 
 if __name__ == "__main__":
     main()
