@@ -10,5 +10,9 @@
 
 **/__pycache__
 
+**/*.hpp
+
 revisions
 paper/cover-letter*
+paper/arxiv
+
