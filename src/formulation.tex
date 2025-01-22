@@ -1,23 +1,27 @@
-Consider the typical loss development context, where
+Consider a typical loss development context, where
 a large set of homogeneous insurance risks (e.g. private
 car insurance policies) are aggregated
-into a loss development triangle with
+into a loss triangle with
 cumulative loss amounts denoted
-$\mathcal{Y}$, defined by
+$\mathcal{Y}$, defined by:
 
 \begin{equation}
 	\mathcal{Y} = \{y_{ij} : i = 1, ..., N; j = 1, ..., N - i + 1\}
 \end{equation}
 
-where $i = (1, ..., N)$ denotes experience periods, most commonly
-indexing all claims occurring during period $i$, and $j = (1, ..., M)$
-denotes development periods or lags. For a particular point in time,
+where $i = 1, ..., N$ denotes experience periods 
+indexing all claims occurring during period $i$, and $j = 1, ..., M$
+denotes development periods. 
+Most frequently, $N = M$.
+For a particular point in time,
 development information for period $i$ is only known up to lag 
 $j = N - i + 1$,
 and therefore $\mathcal{Y}$ represents the left upper diagonal of
 the loss triangle. The complementary, lower diagonal 
-triangle, denoted $\tilde{\mathcal{Y}}$, with $(N + M) \frac{N + M - 1}{2}$
-data points, is unknown and the goal of prediction.
+triangle, denoted $\tilde{\mathcal{Y}}$,
+with $\frac{N (M - 1)}{2}$ entries 
+for a square matrix,
+is unknown and the goal of prediction.
 
 The generative process considered here (Figure \ref{fig:schematic})
 is that cumulative losses
@@ -29,7 +33,7 @@ growth to ultimate (the tail). Traditional methods
 treat estimation of body and tail as a two-step process.
 By contrast, the hidden Markov development model introduces a
 latent, discrete state $\bm{z} = (z_{11}, z_{12}, ..., z_{ij}, ..., z_{NM})
-\in \{1, K\}$ with $K = 2$ that takes value
+\in \{1, ...,  K\}$, with $K = 2$, that takes value
 $z_{ij} = 1$ if the body process generated the losses in the $i$th
 accident period and $j$th development period, and
 $z_{ij} = 2$ if the tail process generated the losses.
@@ -38,8 +42,7 @@ on the state at the previous time point, $z_{ij-1}$,
 and subsequent states are connected via a state transition
 matrix, $\Theta_{ij}$.
 Depending on the latent state and any other parameters
-$\bm{\phi}$, the marginal likelihood 
-of the data, $p(y_{ij} \mid z_{ij}, \bm{\phi})$,
+$\bm{\phi}$, the likelihood, $p(y_{ij} \mid z_{ij}, \bm{\phi})$,
 is given by suitable \textit{emission} distributions.
 Emission distributions are the observation data distributions,
 which in loss development modelling are typically
@@ -50,7 +53,7 @@ as the likelihood distribution.
 
 \begin{figure}[t!]
     \centering
-    \includegraphics[scale=1]{\figures/figure1.pdf}
+    \includegraphics[scale=0.9]{\figures/figure1.pdf}
     \caption{
         A schematic of the hidden Markov model process.
         A loss triangle of observed data is shown
@@ -59,13 +62,14 @@ as the likelihood distribution.
         two processes: the body (blue)
         and the tail (orange). The dynamics of the
         body and tail states vary over accident periods.
-        For a single accident
-        period, observed losses at
-        development lag $t$, $y_{t}$, are shown as grey
-        squares, and are assumed generated from the latent
-        discrete random variable $z_{t}$ (circles), 
+        For the first accident period, $y_{1j}$,
+        the hidden Markov process is illustrated
+        across development lags $j = 1, ..., 10$.
+        Observed losses are shown as grey
+        squares and are assumed generated from the latent
+        discrete random variable $z_{1j}$ (circles), 
         which transition according to the probabilities
-        in matrix $\Theta$.
+        in matrix $\Theta_{1j}$.
     }
 	\label{fig:schematic}
 \end{figure}
