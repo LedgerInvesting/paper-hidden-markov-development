@@ -154,12 +154,12 @@ static constexpr std::array<const char*, 155> locations_array__ =
   " (in 'hmm.stan', line 98, column 21 to column 22)",
   " (in 'hmm.stan', line 98, column 24 to column 25)",
   " (in 'hmm.stan', line 100, column 9 to column 10)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 3, column 4, included from\n'hmm.stan', line 1, column 0)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 5, column 8, included from\n'hmm.stan', line 1, column 0)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 4, column 18, included from\n'hmm.stan', line 1, column 0)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 4, column 6, included from\n'hmm.stan', line 1, column 0)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 8, column 4, included from\n'hmm.stan', line 1, column 0)",
-  " (in '/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan/functions.stan', line 2, column 33, included from\n'hmm.stan', line 1, column 0)"};
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 3, column 4, included from\n'hmm.stan', line 1, column 0)",
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 5, column 8, included from\n'hmm.stan', line 1, column 0)",
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 4, column 18, included from\n'hmm.stan', line 1, column 0)",
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 4, column 6, included from\n'hmm.stan', line 1, column 0)",
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 8, column 4, included from\n'hmm.stan', line 1, column 0)",
+  " (in '/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan/functions.stan', line 2, column 33, included from\n'hmm.stan', line 1, column 0)"};
 template <typename T0__, typename T1__,
           stan::require_all_t<std::is_integral<T0__>,
                               stan::is_std_vector<T1__>,
@@ -447,7 +447,7 @@ class hmm_model final : public model_base_crtp<hmm_model> {
   }
   inline std::vector<std::string> model_compile_info() const noexcept {
     return std::vector<std::string>{"stanc_version = stanc3 v2.33.1",
-             "stancflags = --filename-in-msg=hmm.stan --include-paths=/Users/cmgoold/Documents/ledger/data-science-research/data-science-research/hmm-paper/code/stan"};
+             "stancflags = --filename-in-msg=hmm.stan --include-paths=/Users/cmgoold/Documents/ledger/hidden-markov-development-2024/code/stan"};
   }
   // Base log prob
   template <bool propto__, bool jacobian__, typename VecR, typename VecI,

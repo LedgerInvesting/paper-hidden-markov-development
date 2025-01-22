@@ -1,15 +1,50 @@
-Loss development modelling in actuarial science is the practice
-of predicting the total losses incurred from all reported
-and settled claims on a set of insurance policies. 
-At any moment in time, these so-called \textit{ultimate} losses,
-less the losses paid on already reported claims, 
-constitute the overall loss reserves, generally referred to as
-\textit{incurred but not reported} (IBNR).
-The IBNR amount includes future payments on
+Actuarial science is one of the oldest areas
+of applied statistics, 
+having been founded in the seventeenth
+century, and insurance continues to pose
+many interesting statistical questions
+about risk and uncertainty.
+A core task in actuarial science is
+\textit{loss development} or \textit{loss reserving}.
+Loss development is the practice of
+predicting the total 
+payments due on all 
+claims expected from
+a set of insurance policies \citep{englandverrall2002,zhang2012}.
+Thus, loss development requires
+forecasting not only future payments for
+claims already reported to insurance companies 
+but payments for claims yet to be reported.
+In this way, insurance is unique in that 
+the eventual cost of 
+an insurance policy to the insurance
+company is unknown at the time of sale
+because insurance policies cover, for the most part,
+prospective accidents only.
+Together with the time it takes to report claims
+to insurance companies, and the time it can
+take for an insurance company to arrive
+at a final claim loss payment amount,
+these features of insurance make knowing
+the total losses an insurance company will
+be liable to pay significantly uncertain. 
+
+The total losses due for claims
+from a pool of insurance policies
+are typically referred to as
+the \textit{ultimate} losses, and are composed
+of the loss payments already made on opened
+claims (paid losses), plus an amount estimated by actuaries
+for payments on claims yet to be made (loss reserves).
+This latter amount is frequently referred to as
+\textit{incurred but not reported} (IBNR), and
+includes future payments on
 claims already reported (`incurred by not enough reported'),
 as well as payments for claims not yet reported (`incurred by not
 yet reported').
-In general or non-life insurance, IBNR can be substantial as it may
+In non-life insurance, 
+such as property and casualty insurance,
+IBNR can be substantial as it may
 take years for all claims on a set of policies to be reported and settled.
 Therefore, the accurate estimation of IBNR is key to evaluating an insurance company's
 performance and solvency \citep{beard1960,bornhuetter1972,friedland2010,englandverrall2002,wuthrich2008}.
@@ -18,12 +53,23 @@ is also critical to the legal responsibilities
 of insurers and reinsurers, such as for the Solvency II directive
 \citep{england2019,frohlich2018,munroe2018}.
 
-Estimation of loss reserves is a challenging prediction problem
-that has received considerable attention from actuaries, econometricians,
+Estimation of loss reserves 
+has received considerable attention from actuaries, econometricians,
 and statisticians for decades 
 \citep[e.g. for some key developments, see][]{bornhuetter1972,clarke1974,
 taylor1977,taylor1983,mack1993,barnett2000,englandverrall2001,englandverrall2002,
-taylor2003,wuthrich2008}. From early deterministic and 
+taylor2003,wuthrich2008}. 
+Loss development models are typically applied to sets of aggregated and tabulated
+data known as \textit{loss triangles}, where the rows represent
+intervals of time when accidents occurred, known as experience periods,
+and the columns represent evaluation points, known as development periods,
+of the cumulative or incremental cost of those claims reported in each accident year
+(see Figure \ref{fig:schematic} for a worked example).
+The data structure represents an upper triangular matrix, hence
+the name loss triangle, and it is the task of loss development modelling 
+to complete, and potentially extend, the
+lower diagonal to produce predictions of ultimate loss.
+From early deterministic and 
 algebraic approaches \citep[e.g.][]{scurfield1968,
 bornhuetter1972,clarke1974,taylor1977}, loss development modelling has
 advanced to utilise a wide, and growing, variety of statistical methods, 
@@ -31,17 +77,7 @@ including parametric and non-parametric regressions \citep{mack1994,englandverra
 englandverrall2002,lally2018}, Bayesian estimation \citep{englandverrall2002,dealba2002,
 zhang2012,meyers2015}, differential equations \citep{gesmann2020}, and 
 neural networks and machine learning methods 
-\citep{kunce2017,kuo2019,almudafer2022}. Despite their differences, the majority
-of these approaches are applied to aggregated
-insurance risks, typically displayed as a triangular matrix of experience
-periods and development periods or lags
-called a \textit{loss triangle} (see Figure \ref{fig:schematic}). 
-Each experience period represents losses
-on a distinct set of policies, commonly losses from all 
-policies with accidents occuring in a specific
-time period, and each development lag 
-records the cumulative or incremental
-development of those losses through time since reporting.
+\citep{kunce2017,kuo2019,almudafer2022}.
 
 A key inferential quantity from any loss development
 model is the set of multiplicative factors transforming 
@@ -52,28 +88,35 @@ While many models include link ratios as an explicit parameter to be
 inferred, notably the family of chain ladder methods
 \citep[e.g.][]{mack1993,englandverrall2002},
 others derive link ratios as a generated quantity \citep{englandverrall2001,meyers2015}. 
-Ideally, link ratios will smoothly decline over time towards unity,
-but in practice often include periods of volatility, particularly
+Ideally, link ratios for cumulative losses will smoothly decline over time towards unity,
+indicating that the losses are approaching their ultimate value at later development
+periods.
+In practice, however, link ratios often include periods of volatility, particularly
 for early development periods, and may further encode systematic
-and non-systematic effects across experience periods or date of
-development evaluation (e.g. the influence of the Covid-19 pandemic).
+and non-systematic effects across experience periods or 
+development period (e.g. the influence of the Covid-19 pandemic).
 Depending on the degree of volatility and the amount of data available,
-link ratios estimated from a triangle of finite
-risks will be insufficient to infer the ultimate losses for each experience period,
-because losses may still be emerging at the latest development period available
-in the data. Thus, estimation of ultimate losses will require extending the link ratios
-to outside the domains of the focal triangle to include \textit{tail factors}.
-Like general loss development modelling, tail factor estimation has had its own expansive history
+link ratios estimated using popular methodologies
+may be insufficient to infer the ultimate losses for each experience period.
+For instance, at the latest development period in the data, link ratios
+may not be nearing unity.
+Consequently, estimation of ultimate losses will require extending the link ratios
+to outside the domains of the focal triangle to include additional
+link ratios, known as \textit{tail factors}, that make assumptions
+about how the losses will continue to develop in the future.
+
+Like the loss development literature discussed above, 
+tail factor estimation has had its own expansive history
 of deterministic and stochastic methods \citep{tailfactors2013}, and is of particular
 importance in `long-tailed' lines of business, such as workers' compensation or general
-liability, where experience periods might display continued loss cost growth and 
-volatility at relatively late development lags.
-
-Of the various approaches to calculating tail factors, many 
+liability, where experience periods might display continued growth and 
+volatility of loss amounts at relatively late development periods.
+Of the various approaches used to calculate tail factors, many 
 use a second model fit to a portion
-of the focal triangle that conveys how the triangle may behave
-in the tail \citep{tailfactors2013}, or to the set of link ratios
-directly from the first model. These models typically 
+of the focal triangle or to a subset of the link ratios
+that conveys how the triangle may behave
+in the tail, close to ultimate loss \citep{tailfactors2013}.
+These models typically 
 infer a parametric, monotonically
 increasing growth curve of losses from the training data, 
 such as various forms of
@@ -85,22 +128,31 @@ arbitrary number of development lags into the future.
 For clarity, the primary link ratios will be referred to
 in this paper as the `body' link ratios to distinguish them from 
 link ratios estimated in the tail.
-Crucially, this two-step process includes a number of 
-subjective decisions. 
-The body-to-tail
-switch-over development lag is frequently chosen
-to reflect when the development process settles to a
-reasonable plateau, while the training windows for
-both models will be chosen based on which sections of
-the triangle best match each model's assumptions.
+
+The two-step process of estimating body and tail link ratios
+includes a number of 
+subjective decisions that may not be optimal. 
+Namely, it necessitates manually selecting a development 
+period where the tail link ratios should take over from
+the body link ratios, and manually selecting portions of
+loss triangles to be used as training data that best match
+body and tail development model assumptions.
+The choice of development periods to use in each case
+can have important implications for predictions of ultimate
+loss.
 For instance, including periods
-of non-monotonic growth into tail models might bias
-tail factors unreasonably high. These decisions
+of non-monotonic growth into tail model training
+data would bias
+tail factors, and ultimate losses, unreasonably high. 
+Similarly, predicting
+ultimate losses using tail factors applied too early
+in a triangle
+could miss important development features at later
+development lags and bias ultimate losses too low. 
+Moreover, the manual selection of training data windows
+and body-to-tail cut-off points
 are difficult to reproduce and
-opens analysts to many `researchers degrees of freedom' \citep{simmons2011}
- -- selecting one approach among many possible
- alternatives that might have non-trivial impacts
- on predicting ultimate loss.
+opens analysts to many `researchers degrees of freedom' \citep{simmons2011}.
 
 Methods that simultaneously estimate body
 and tail link ratios 
@@ -150,7 +202,7 @@ from speech recognition \citep[e.g.][]{rabiner1989}
 to animal behaviour \citep[e.g.][]{leos2017}.
 Indeed, Markov processes have been previously used
 in micro-level claim 
-modelling \citep[e.g.][]{hesselager1994}, but
+modelling \citep[e.g.][]{hesselager1994} but
 have not been applied to aggregate insurance
 loss triangles.
 As described in this paper, hidden Markov 
@@ -163,13 +215,9 @@ for complex data-generating assumptions,
 such as understanding the impact of covariates
 or including non-parametric patterns of loss development 
 \citep{englandverrall2001},
-Moreover, the approach presented here is flexible
-enough to integrate any of the parametric and non-parametric
-models that have been presented in the actuarial literature
-for modelling body and tail processes.
 
 Below, the hidden Markov model is formulated
-and validated with simulated examples, and 
+and validated with simulated examples and 
 subsequently compared
 to a traditional two-step process using
 a number of data sets. The hidden Markov
