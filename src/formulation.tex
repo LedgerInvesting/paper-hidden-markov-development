@@ -8,13 +8,13 @@ $\mathcal{Y}$, defined by:
 \begin{equation}
 	\mathcal{Y} = \{y_{ij} : i = 1, ..., N; j = 1, ..., N - i + 1\}
 \end{equation}
-
+%
 where $i = 1, ..., N$ denotes experience periods 
 indexing all claims occurring during period $i$, and $j = 1, ..., M$
 denotes development periods. 
 Most frequently, $N = M$.
 For a particular point in time,
-development information for period $i$ is only known up to lag 
+development information for period $i$ is only known up to period 
 $j = N - i + 1$,
 and therefore $\mathcal{Y}$ represents the left upper diagonal of
 the loss triangle. The complementary, lower diagonal 
@@ -57,20 +57,25 @@ as the likelihood distribution.
     \caption{
         A schematic of the hidden Markov model process.
         A loss triangle of observed data is shown
-        with 10 accident periods, and each
-        development period generated from
+        with 10 accident periods. Observed losses
+        at each development period and accident period
+        is generated from one of
         two processes: the body (blue)
-        and the tail (orange). The dynamics of the
+        and or tail (orange). The dynamics of the
         body and tail states vary over accident periods.
         For the first accident period, $y_{1j}$,
         the hidden Markov process is illustrated
-        across development lags $j = 1, ..., 10$.
+        across development periods $j = 1, ..., 10$.
         Observed losses are shown as grey
         squares and are assumed generated from the latent
-        discrete random variable $z_{1j}$ (circles), 
-        which transition according to the probabilities
-        in matrix $\Theta_{1j}$.
-    }
+        discrete random variable $z_{1j}$ (circles) via
+        emission distributions.
+        Latent states transition according
+        to the probabilities
+        in matrix $\Theta_{1j}$, depending on parameters
+        $\bm{\psi}$, and $\mu_{1_{1j}}$ and $\mu_{2_{1j}}$
+        represent the body and tail state emission distributions.
+   }
 	\label{fig:schematic}
 \end{figure}
 
@@ -81,8 +86,8 @@ written generally as:
 	\begin{split}
 	\label{eq:hmm}
 	y_{ij} &\sim \begin{cases}
-		\mathrm{Lognormal}(\mu_{1}, \sigma_{ij}) \quad z_{ij} = 1\\
-		\mathrm{Lognormal}(\mu_{2}, \sigma_{ij}) \quad z_{ij} = 2\\
+        \mathrm{Lognormal}(\mu_{1_{ij}}, \sigma_{ij}) \quad z_{ij} = 1\\
+        \mathrm{Lognormal}(\mu_{2_{ij}}, \sigma_{ij}) \quad z_{ij} = 2\\
 	\end{cases}\\
     z_{ij} &\sim \mathrm{Categorical}(\Theta^{z_{ij-1}}_{ij})\\
     \Theta_{ij} &= \begin{pmatrix}
@@ -93,26 +98,28 @@ written generally as:
     \log \frac{\nu}{1 - \nu} &\sim \mathrm{Normal}(0, 1)\\
 	\end{split}
 \end{align}
-
+%
 The cumulative losses at accident period $i$ and development period $j$
 are assumed positive-bound, lognormally-distributed random variates,
-with log-scale location $\mu_{1}$ if the process is in the body
-or $\mu_{2}$ if the process is in the tail, and with scale $\sigma_{ij}$.
+with log-scale location $\mu_{1_{ij}}$ if the process is in the body
+or $\mu_{2_{ij}}$ if the process is in the tail, and with scale $\sigma_{ij}$.
 The latent state $z_{ij}$ determines the body or tail state at each
 time point, and follows a categorical distribution with unit simplex probabilities
-determined by row $z_{ij - 1}$ of the state transition matrix
-$\Theta_{ij}$. As discussed below, the state transition matrix
+determined by row $z_{ij - 1}$ of the state transition matrix, shown
+by the superscript in $\Theta_{ij}^{z_{ij - 1}}$. 
+As discussed below, the state transition matrix
 may be time-homogeneous or -inhomogeneous, depending on the context.
-In $\Theta$, $\pi$ denotes $p(z_{ij} = 1 \mid z_{ij-1} = 1)$, the 
+In the state-transition matrix, 
+$\pi$ denotes $p(z_{ij} = 1 \mid z_{ij-1} = 1)$, the 
 probability of staying in the body
-process at lag $j$, and $\nu = p(z_{ij} = 2 \mid z_{ij-1} = 2)$.
+process at period $j$, and $\nu = p(z_{ij} = 2 \mid z_{ij-1} = 2)$,
+the probability of staying in the tail at period $j$.
 Their complements, $1 - \pi$ and $1 - \nu$, represent the
 probabilities of transitioning from body to tail, and tail
 to body, respectively.
 
-The functions $\bm{\mu} = (\mu_{1}, \mu_{2})$ provide the conditional
-expectations of the two processes assumed to describe the data.
-The models here use two canonical body and tail development models:
+The emission distributions, $\mu_{1_{ij}}, \mu_{2_{ij}})$,
+used here are two canonical body and tail development models:
 the chain ladder model for body loss development factors
 \citep{mack1993,englandverrall2002},
 and an exponential decay curve following the generalised Bondy model
@@ -132,7 +139,7 @@ and the remaining prior distributions.
     \bm{\gamma}_{1:2} &\sim \mathrm{Normal}(0, 1)\\
 \end{split}
 \end{align}
-
+%
 Due to the multiplicative autoregressive nature of typical
 loss development models, the first data point is not modelled,
 and the hidden Markov process is assumed to start in the
@@ -163,7 +170,7 @@ This is akin to the use of pseudo-priors in Bayesian mixture
 models \citep{carlinchib1995}, which ensure parameters in the mixture
 not being sampled do not become implausible.
 
-\subsubsection{Model variants}
+\subsection{Model variants}
 Three variations of the hidden Markov model are used (Table \ref{table:variants}). 
 The base model (referred to as HMM) has homogeneous transition matrix $\Theta$,
 and sets $\nu$ to zero. This implies that once the tail
@@ -208,12 +215,12 @@ without further data or covariates.
     \label{table:variants}
 \end{table}
 
-\subsubsection{Estimation}
-We fit the models in Stan \citep{stan2017} using Bayesian inference
-via Hamiltonion Monte Carlo, via the \texttt{cmdstanpy} \citep{cmdstanpy2024}
+\subsection{Estimation}
+The models were fit Stan \citep{stan2017} using Bayesian inference
+via Hamiltonian Monte Carlo, via the \texttt{cmdstanpy} \citep{cmdstanpy2024}
 Python package and \texttt{cmdstan} \citep{cmdstan2024}. Stan requires specifying a statement
 proportional to the joint log density of the data and parameters.
-For the above model, the log likelihood for a single data point,
+For the above model, the log joint density for a single data point,
 grouping all transition matrix parameters as $\bm{\psi} = \{\pi, \nu\}$
 and emission distribution parameters as $\bm{\phi} = \{\alpha,
 \omega, \beta, \gamma\}$, can be factored as:
@@ -226,29 +233,48 @@ p(y_{ij}, z_{ij}, z_{ij-1}, \bm{\phi}, \bm{\psi}) =
     p(\bm{\psi})
     p(\bm{\phi})
 \end{equation}
+%
+Stan's use of Hamiltonian Monte Carlo means it cannot
+directly estimate the discrete parameters 
+$z_{ij}$ or $z_{ij-1}$, meaning they
+must be marginalised out of the model statement.
+Indeed, marginalisation is often more computationally
+efficient and stable than estimating discrete parameters
+directly.
+However, naive marginalisation schemes are inefficient
+because the number of possible states increases
+exponentially with the number of time points,
+providing all states can be transitioned between
+at each time point. Therefore, the hidden Markov
+models were estimated using the forward algorithm
+\cite{rabiner1989},
+which iteratively stores the joint probability
+of the data and discrete parameter possibilities
+across development periods for easy marginalisation. 
+The log joint density for a single accident year under
+this scheme is:
 
-However, it is often more computationally
-efficient to marginalise the
-latent discrete parameters $z_{ij}$ and
-$z_{ij-1}$ out of the
-density, leading to a double summation
-over possible states for $z_{ij}$ and $z_{ij-1}$:
+\begin{equation}
+    p(y_{1:M}, \bm{\phi}, \bm{\psi}) = p(y_{iM}, y_{i,1:M-1} \mid \bm{\phi}, \bm{\psi})
+    p(\bm{\phi}) p(\bm{\psi})
+\end{equation}
+%
+where $y_{iM}$ are the losses at the
+last development period for accident period $i$
+and $y_{i,1:M-1}$ are all losses for accident period $i$ up to 
+development period $M - 1$. The joint
+density of these two terms marginalises
+across latent states using the expression:
 
 \begin{align}
     \begin{split}
-    p(y_{ij}, \bm{\phi}, \bm{\psi}) = 
-    &\sum_{k=1}^{K}
-    p(y_{ij} \mid z_{ij} = k, \bm{\phi})
-    p(\bm{\phi})\\
-    &\sum_{h=1}^{K}
-    p(z_{ij} = k \mid z_{ij-1} = h, \bm{\psi})
-    p(z_{ij-1}  = h \mid \bm{\psi})
-    p(\bm{\psi})
+        p(y_{iM}, y_{i,1:M-1} \mid \bm{\phi}, \bm{\psi}) =
+        &\sum_{k=1}^{K} p(y_{ij} \mid z_{ij} = k, \bm{\phi})\\
+        &\sum_{h=1}^{K} p(z_{ij} = k \mid z_{ij-1} = h, \bm{\psi})
+            p(z_{ij - 1} = h, y_{i, 1:j})
     \end{split}
 \end{align}
-
-This recursive estimation over possible states
-is the forward algorithm \citep{rabiner1989}.
+%
 After model fitting, the hidden states on the
 training data can be recovered using the
 Viterbi algorithm \citep{rabiner1989},

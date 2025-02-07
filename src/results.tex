@@ -1,146 +1,57 @@
-To build intuition for the two models,
-Figure \ref{fig:numerical} shows a numerical
-simulation of data from a HMM model,
-and the results for the HMM model,
-in panel A, and the
-two-step model, in panel B.
-Whereas the HMM model's posterior predictions
-switch from body to tail depending on
-the particular latent state path,
-the two-step models have fixed
-$\tau = 6$ and $\rho_{1,2} = (6, 10)$.
-As shown by the ELPD values above each
-plot, the HMM variant outperforms
-the two-step approach for all
-experience periods except the first,
-where our chosen value $\tau$
-matches the HMM data-generating process
-exactly. In other experience
-periods, the two-step approach
-generalises poorly. This illustrates that,
-if $\tau$ is chosen correctly, and the
-tail model is trained on suitable development
-lags, the two-step approach can provide
-more exact predictions, because
-uncertainty in the latent state
-from the HMM model hurts predictive accuracy.
-However, if
-experience periods differ in their
-body-to-tail switch-over dynamics,
-which is expected, then overall
-performance suffers due to
-growing generalisation error.
-
-\begin{figure}
-    \hspace{-1.8cm}
-    \includegraphics[scale=0.45]{\figures/numerical}
-    \caption{
-        A simulated data example comparing the HMM
-        to two-step process to build intuition.
-        Panels A (HMM) and B (two-step) show
-        10 experience periods from a single
-        loss triangle simulated from the HMM
-        model. The true losses
-        are shown as points, with colours
-        identifying
-        body (blue) or tail (orange) points.
-        Circles denote training data and
-        triangles test data. Thin 
-        lines are samples from the posterior
-        predictive distributions, coloured
-        by latent state, and the thicker
-        line shows the mean paths.
-        The ELPDs on the test data
-        points in each experience period
-        are shown above each plot.
-        The two-step model was fit
-        assuming $\tau = 6$ and
-        $\rho_{1,2} = (6, 10)$.
-    }
-	\label{fig:numerical}
-\end{figure}
-
-Simulation-based calibration of the HMM model indicated
-no problems with model calibration (Figure \ref{fig:sbc}),
-with all histograms matching the assumptions of
-uniformity. However, 10 models were removed for poor
-convergence, which typically occurred when the simulated
-link ratios from the body process were
-higher than values expected from real loss triangles. 
-Given this occurred rarely, the priors were left
-unchanged, although suitable prior distributions
-for Bayesian chain ladder models is an area
-with a dearth of literature.
-For the 990 models, 
-the average classification accuracy of the recovered latent
-state values $\bm{z}$, across
-both training and test data, was 97\% with a 
-95\% highest density interval (i.e. the 95\% most
-likely values) of [91, 100].
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.5]{\figures/ranks}
-    \caption{
-		Histograms of simulation-based calibration
-		rank statistics for the HMM model, 
-        with the 99\% percentile
-        interval from a discrete uniform distribution
-        shown in the grey shaded band.
-        Each histogram shows a key model parameter,
-        and the final two panels show the ranks
-        for the joint log
-        likelihood and the first ultimate loss
-        distribution.
-        For each model, we sampled
-        4000 draws from the posterior distribution,
-        and thinned the samples by 10 to remove any
-        autocorrelation, meaning a maxmimum rank statistic
-        of 400. Of the 1000 models,
-        10 were removed due to poor convergence.
-    }
-	\label{fig:sbc}
-\end{figure}
-
-The ELPD and RMSE differences between models (compared to the
-HMM base model) are shown in Figure \ref{fig:backtest-scores}.
+The ELPD and RMSE differences between models, relative to
+the best model,
+are shown in Figure \ref{fig:backtest-scores}.
 When calculating ELPD, a small number of pointwise log densities 
 showed very small, negative values, indicating poor predictions
 on the out-of-sample data leading to numerical instability. 
 We decided to remove any log predictive
 densities for all models that had values $< -100$, which for a single
 out-of-sample data point was particularly low, given that most
-ELPD values for a single data point lie within [-5, 5]. This retained 99.91\%
-of values for the PP results, 99.42\% of values for WC, 99.64\%
-for CA, and 98.38\% for OO. The full log densities are given in the
+ELPD values for a single data point lie within [-5, 5]. This retained 99.7\%
+of values for the PP results, 99.1\% of values for WC, 99.6\%
+for CA, and 98.2\% for OO. The full log densities are given in the
 supplementary materials, as well as results for different levels
 of filtering.
 
-For ELPD and RMSE, at least one of the
+For ELPD, at least one of the
 hidden Markov model variants out-performed
-the two-step approach, apart from ELPD
-for PP and WC lines of business, where
-a small proportion of the
-two standard errors 
-included zero (Figure \ref{fig:literature}).
+the latent change-point and 
+two-step models, on average, 
+apart from ELPD values for the PP
+lines of business where the latent change-point
+performed marginally better than the nearest
+HMM model. The standard errors around the ELPD
+values, however, indicated there all the models
+often performed within 2 standard errors from each other,
+apart from the OO line of business where the HMM models
+performed noticeably better.
+For all lines of business, one of the HMM 
+models clearly out-performed the latent change-point
+and two-step models in RMSE.
 Overall, the HMM-$\nu$ model attained
 75\% of the best average ELPD scores, and 50\%
 of the best average RMSE scores, meaning that
 allowing for tail processes to revert
-to the body is important to making
+to the body in an important feature in making
 future predictions.
-Evaluating the predictions at the lag-10
+Evaluating the predictions at the 10th
+development period
 out-of-sample values only, to mirror
 the estimation of ultimate loss,
 mirrored the results in Figure
 \ref{fig:backtest-scores} apart from some
 minor changes in ranks of the HMM
-models (full results supplied
-in the supplementary materials).
+models (full results are supplied
+in the code repository).
+The performance results also indicated
+that the latent change-point model
+was close to, but still out-performed,
+on average, the two-step in both ELPD and RMSE.
+
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{\figures/scores.png}
+    \includegraphics[scale=0.45]{\figures/scores.png}
     \caption{
         The ELPD (left column) and RMSE (in thousands of dollars; right column)
 		differences (+/- 2 standard errors; SE) in order of performance
@@ -169,7 +80,7 @@ showed signs of both under- and over-estimation.
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{\figures/calibration.png}
+    \includegraphics[scale=0.45]{\figures/calibration.png}
     \caption{
         Percentiles of the true left-out values on the posterior distributions
         for each model and line of business (panels A through D) in the industry triangles.
@@ -204,7 +115,7 @@ was allowed.
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.5]{\figures/z_stars.png}
+    \includegraphics[scale=0.45]{\figures/z_stars.png}
     \caption{
         The average probability of being in the tail process
         for each hidden Markov model parameterization (columns)
@@ -224,40 +135,28 @@ of hold-out data meant that the uncertainties
 around the ELPD and RMSE differences
 indicated more equal model performance
 (Figure \ref{fig:literature}).
-The average ELPD and RMSE
+The average ELPD
 differences indicated that one of the hidden
-Markov models often performed better than the
-two-step approaches. The two-step approach
-out-performed the hidden Markov models
-for the \cite{merz2015} triangle,
-and ranked second for RMSE
-for three of the five triangles.
+Markov models or the latent change-point
+model performed better than the
+two-step approach, although the two-step approach
+clearly performed best in terms of RMSE
+for the \cite{verrall2015} triangle,
+and was on par with the other models
+for the remaining literature triangles.
 The manual selection of $\tau$
 for the two-step process often
 closely aligned with the 
-development lag from the
-best-performing HMM where
-the probability of being in
-the tail was $> 0.5$. The one
-exception was
-the long-tailed
-liability triangle of
-\cite{balona2022},
-where the chosen $\tau$
-of 12 was much larger
-than the most likely
-switch-over lag from the HMM
-variant of $j=3$. However,
-$j=3$ did closely match
-the choice of $\rho_{1} = 4$.
+posterior distribution of most
+plausible $\tau$ values estimated by the latent
+change-point model.
 
 \begin{figure}
     \centering
     \hspace{-1em}
-    \includegraphics[scale=0.45]{\figures/literature.png}
+    \includegraphics[scale=0.4]{\figures/literature.png}
     \caption{
-        Results for the hidden Markov model and two-step
-        approach on the five literature triangles
+        Model results on the five literature triangles
         (rows A - D). The first
         column shows the mean (+/- 2 standard deviations)
         of the empirical link ratios in the triangles.
@@ -265,17 +164,17 @@ the choice of $\rho_{1} = 4$.
         and $\bm{\rho} = \rho_{1:2}$, the tail start
         and generalised Bondy model training windows,
         respectively (see model definitions, above).
-        The second and third columns show the
+        The second column presents the distribution
+        of $\tau$ values from the latent change-point,
+        for comparison to the two-step manual values
+        shown in the first column.
+        The third and final columns show the
         ELPD and RMSE differences (+/- 2 SE) from the best
         performing model (top model in each panel), calculated
         from predictions on the latest diagonal of
         data (out-of-sample) in the loss triangles.
         The absolute ELPD and RMSE of the best-performing
         models are shown above the top model, for reference.
-        The final column shows the development lags where
-        the probability of being in the tail was $> 0.5$
-        for the highest ELPD hidden Markov model
-        variant.
     }
 	\label{fig:literature}
 \end{figure}

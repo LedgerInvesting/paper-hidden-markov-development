@@ -1,6 +1,8 @@
 We compared the hidden Markov development model to
-the two-step approach in two different ways.
-Firstly, we estimated both models on the 200 industry
+the latent change-point and two-step models 
+using two sets of data.
+
+Firstly, the models were fit to 200 industry
 paid loss triangles from \cite{meyers2015}, 50 triangles
 for the four lines of business: private passenger auto (PP),
 workers compensation (WC), commerical auto (CA), and
@@ -27,15 +29,15 @@ that the link ratios showed smooth patterns
 of decay from approximately development period
 4 onwards, and the
 triangles were close, on average, to their values
-at period 10 by development period $\tau + 1 = 7$.
+at period 10 by development period $\tau = 6$.
 
 When fitting the models to industry triangles,
-a small number of hidden Markov and two-step
-models failed due to producing
+a small number of models
+produced
 very large posterior predictions on out-of-sample
 data, which numerically overflowed. The multiplicative
-autoregressive nature of both the hidden Markov and
-two-step models mean that large predictions at one
+autoregressive nature of typical loss development models
+mean that large predictions at one
 time point can quickly compound to unrealistic and
 computationally-unstable values. For this reason,
 we capped the predictions at 100 times the
@@ -44,7 +46,7 @@ for each triangle.
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.3]{\figures/atas.png}
+    \includegraphics[scale=0.4]{\figures/atas.png}
     \caption{
         The empirical link ratios by line of business 
 		(panels A-D) in
@@ -73,13 +75,13 @@ test dataset to evaluate predictive performance.
 For the two-step modelling approach, we chose the
 $\tau$ and $\bm{\rho}$ constants
 by visual inspection of the empirical link ratios,
-selecting $(12, 5, 5, 5, 12)$ for $\tau$ values
+selecting $(4, 4, 4, 4, 11)$ for $\tau$ values
 for each triangle,
 and $[(4, 16), (3, 20), (3, 21), (3, 16), (10, 21)]$
 for $\bm{\rho}$ values, respectively.
 The link ratios are displayed in Figure \ref{fig:literature}.
 
-\subsubsection{Model performance}
+\subsection{Model performance}
 Model performance can be split into two facets:
 accuracy and calibration.
 We summarised model accuracy using two metrics
@@ -88,8 +90,9 @@ log predictive density (ELPD) and the root mean
 square error (RMSE). 
 The ELPD \citep{vehtari2017} is based on the logarithmic scoring
 rule, and is defined for a single triangle
-as the joint log likelihood of the out-of-sample
-data. In this way, it more heavily
+as the joint log density of the out-of-sample
+data and posterior distribution of the parameters. 
+In this way, it more heavily
 penalises models further from
 the true data generating process.
 Across each accident period $i$ and development
@@ -111,7 +114,7 @@ samples:
 					\log p(\tilde{y}_{ij}^{(s)} \mid \mathcal{Y})
 	\end{split}
 \end{align}
-
+%
 where $p(\tilde{y}_{ij} \mid \mathcal{Y})$
 is the posterior predictive distribution for
 the $i$th accident period at lag $j$,
@@ -148,7 +151,7 @@ $\tilde{\mathcal{Y}}$
 	\label{eq:rmse}
 	\mathrm{RMSE_{ij}} = \sqrt{\frac{1}{S} \sum_{s=1}^{S} (\hat{y}_{ij}^{(s)} - \tilde{y}_{ij})^2}
 \end{equation}
-
+%
 where $\hat{y}_{ij}^{(s)}$ is the $s$th sample from the 
 posterior predictive distribution.
 In contrast to ELPD, RMSE penalises models that produce
@@ -165,7 +168,9 @@ in RMSE and $ii$) the number of data points.
 Model calibration was inspected using histograms
 of the percentiles of the true data on the 
 posterior predictive distributions, i.e.
-the empirical cumulative distribution functions. 
+the empirical cumulative distribution functions, 
+a quantity sometimes referred to as the
+randomised quantile residual \citep{dunn1996}.
 Well-calibrated models' percentiles should be
 uniformly distributed, as in the case
 of simulation-based calibration above.

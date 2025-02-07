@@ -124,7 +124,7 @@ inverse power curves \citep[e.g.][]{sherman1984,evans2015,clark2017}.
 The link ratios derived from this tail model are then appended to
 the link ratios estimated from the primary loss development model
 to produce predictions an
-arbitrary number of development lags into the future.
+arbitrary number of development periods into the future.
 For clarity, the primary link ratios will be referred to
 in this paper as the `body' link ratios to distinguish them from 
 link ratios estimated in the tail.
@@ -148,7 +148,7 @@ Similarly, predicting
 ultimate losses using tail factors applied too early
 in a triangle
 could miss important development features at later
-development lags and bias ultimate losses too low. 
+development periods and bias ultimate losses too low. 
 Moreover, the manual selection of training data windows
 and body-to-tail cut-off points
 are difficult to reproduce and
@@ -218,11 +218,13 @@ or including non-parametric patterns of loss development
 
 Below, the hidden Markov model is formulated
 and validated with simulated examples and 
-subsequently compared
-to a traditional two-step process using
-a number of data sets. The hidden Markov
-models are fit using Bayesian estimation
-in Stan \citep{stan2017} following a modern Bayesian
+tested on multiple data sources. 
+The model is compared to both a traditional
+two-step modelling process and a slightly
+more parsimonious latent
+change-point model.
+Models are fit using Bayesian estimation
+and following a modern Bayesian
 workflow \citep{gelman2020}.
 All Python and Stan code, and all datasets, to 
 reproduce the results

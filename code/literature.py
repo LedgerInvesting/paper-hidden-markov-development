@@ -4,8 +4,11 @@ import numpy as np
 import json
 from scipy.special import logsumexp
 import re
+import logging
 
 from summarize import Score
+
+logger = logging.getLogger(__name__)
 
 RESULTS = "results"
 SCALER = 1e5
@@ -13,17 +16,19 @@ SCALER = 1e5
 SEED = 1234
 
 TAU_RHOS = {
-    "Balona & Richman (2022), long-tailed liability": (12, [4, 16]),
-    "Balona & Richman (2022), short-tailed property": (5, [3, 20]),
-    "Gisler (2015)": (5, [3, 21]),
-    "Merz & Wuthrich (2015)": (5, [3, 16]),
-    "Verrall & Wuthrich (2015)": (12, [10, 21]),
+    "Balona & Richman (2022), long-tailed liability": (4, [4, 16]),
+    "Balona & Richman (2022), short-tailed property": (4, [3, 20]),
+    "Gisler (2015)": (4, [3, 21]),
+    "Merz & Wuthrich (2015)": (4, [3, 16]),
+    "Verrall & Wuthrich (2015)": (11, [10, 21]),
 }
 
 
+csp.set_cmdstan_path(".cmdstan/cmdstan-2.36.0")
 HMM = csp.CmdStanModel(stan_file="stan/hmm.stan")
 HMM_NU = csp.CmdStanModel(stan_file="stan/hmm-nu.stan")
 HMM_LAG = csp.CmdStanModel(stan_file="stan/hmm-lag.stan")
+CHANGEPOINT = csp.CmdStanModel(stan_file="stan/changepoint.stan")
 TRADITIONAL = csp.CmdStanModel(stan_file="stan/traditional.stan")
 
 SAMPLES = 2500
@@ -118,6 +123,18 @@ def fit_hmms(triangle: List[List[float]], paper: str) -> csp.CmdStanMCMC:
     return base, nu, lag
 
 
+def fit_changepoint(triangle: List[List[float]], paper: str) -> csp.CmdStanMCMC:
+    d = stan_data(triangle) | {
+        "tau": TAU_RHOS[paper][0],
+        "rho": TAU_RHOS[paper][1],
+    }
+    changepoint = CHANGEPOINT.sample(
+        data=d,
+        **STAN_CONFIG,
+    )
+    return changepoint
+
+
 def fit_traditional(triangle: List[List[float]], paper: str) -> csp.CmdStanMCMC:
     d = stan_data(triangle) | {
         "tau": TAU_RHOS[paper][0],
@@ -172,6 +189,7 @@ def score(models, triangle, paper):
     z_stars = np.array(
         [(f.z_star - 1).mean(axis=0) for f in models.values() if hasattr(f, "z_star")]
     )
+    tau_stars = models["changepoint"].tau_star
 
     elpds = Score(raw_elpds, np.sum, ii, jj)
 
@@ -185,17 +203,25 @@ def score(models, triangle, paper):
     json.dump(percentiles.tolist(), open(RESULTS + f"/percentiles-{paper}.json", "w"))
     json.dump(z_stars.tolist(), open(RESULTS + f"/zstar-{paper}.json", "w"))
 
+    with open(RESULTS + f"/taustar-{paper}.json", "w") as f:
+        json.dump(tau_stars.tolist(), f)
 
 def main():
     for paper, file in TRIANGLES.items():
+        logger.info(f"Fitting models to {paper}")
         triangle = list(json.load(open(file)).values())
-        traditional = fit_traditional(triangle, paper)
+        logger.info("Fitting the HMM models")
         hmm, hmm_nu, hmm_lag = fit_hmms(triangle, paper)
+        logger.info("Fitting the changepoint model")
+        changepoint = fit_changepoint(triangle, paper)
+        logger.info("Fitting the traditional model")
+        traditional = fit_traditional(triangle, paper)
         score(
             {
                 "hmm": hmm,
                 "hmm_nu": hmm_nu,
                 "hmm_lag": hmm_lag,
+                "changepoint": changepoint,
                 "traditional": traditional,
             },
             triangle,

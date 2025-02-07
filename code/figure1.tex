@@ -71,9 +71,9 @@
 
 	% matrices
 	\node[below right of = theta, yshift=-0.5cm, xshift=2cm] (tm) {$\begin{aligned}
-            \mathbf{\Theta_11} = \begin{pmatrix} 
-				\theta_{1,1} & \theta_{1,2}\\ 
-				\theta_{2,1} & \theta_{2, 2} 
+            \mathbf{\Theta_{11}} = \begin{pmatrix} 
+				\theta_{11} & \theta_{12}\\ 
+				\theta_{21} & \theta_{22} 
 			\end{pmatrix}
 		\end{aligned}
 	$};
@@ -164,13 +164,13 @@
     \node [observed2, right of = body, font=\footnotesize, minimum size=1cm, inner sep=5pt] (tail) {Tail};
 
     % mappings
-    \draw[->, dashed] (z1) -- node[left, font=\footnotesize] (fx) {$f_{1}(\bm{\phi})$} (y1);
+    \draw[->, dashed] (z1) -- node[left, font=\footnotesize] (fx) {$\mu_{1_{11}}$} (y1);
     \draw[->, dashed] (z2) -- (y2);
     \draw[->, dashed] (z3) -- (y3);
     \draw[->, dashed] (z4) -- (y4);
     \draw[->, dashed] (z5) -- (y5);
     \draw[->, dashed] (z6) -- (y6);
-    \draw[->, dashed] (z7) -- node[left, font=\footnotesize] (f2x) {$f_{2}(\bm{\phi})$} (y7);
+    \draw[->, dashed] (z7) -- node[left, font=\footnotesize] (f2x) {$\mu_{2_{17}}$} (y7);
     \draw[->, dashed] (z8) -- (y8);
     \draw[->, dashed] (z9) -- (y9);
     \draw[->, dashed] (z10) -- (y10);

@@ -27,6 +27,7 @@ DATA = {
 HMM = csp.CmdStanModel(stan_file="stan/hmm.stan")
 HMM_NU = csp.CmdStanModel(stan_file="stan/hmm-nu.stan")
 HMM_LAG = csp.CmdStanModel(stan_file="stan/hmm-lag.stan")
+CHANGEPOINT = csp.CmdStanModel(stan_file="stan/changepoint.stan")
 TRADITIONAL = csp.CmdStanModel(stan_file="stan/traditional.stan")
 
 RESULTS = "results"
@@ -113,6 +114,18 @@ def fit_hmm(data):
     return base, nu, lag
 
 
+def fit_changepoint(data):
+    fits = []
+    for i, (key, d) in enumerate(tqdm(data.items())):
+        fits.append(
+            CHANGEPOINT.sample(
+                data=stan_data(d),
+                **STAN_CONFIG,
+            )
+        )
+    return fits
+
+
 def fit_traditional(data):
     fits = []
     for i, (key, d) in enumerate(tqdm(data.items())):
@@ -177,6 +190,11 @@ def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
             for fits in zip(*models.values())
         ]
     )
+    tau_star = np.array([
+        fit.tau_star
+        for fit
+        in models["changepoint"]
+    ])
     elpds = Score(raw_elpds, np.sum, ii, jj)
 
     def sqrt_mean(x, axis):
@@ -194,6 +212,10 @@ def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
     with open(RESULTS + f"/zstar-{lob}.json", "w") as f:
         json.dump(z_stars.tolist(), f)
 
+
+    with open(RESULTS + f"/taustar-{lob}.json", "w") as f:
+        json.dump(tau_star.tolist(), f)
+
     with open(RESULTS + f"/percentiles-{lob}.json", "w") as f:
         json.dump(percentiles.tolist(), f)
 
@@ -204,7 +226,11 @@ def main() -> None:
     for lob in DATA:
         logger.info(f"Backtesting line of business {lob}")
         data = load_data(lob)
+        logger.info(f"Fitting HMM models")
         hmm, hmm_nu, hmm_lag = fit_hmm(data)
+        logger.info(f"Fitting changepoint model")
+        changepoint = fit_changepoint(data)
+        logger.info(f"Fitting traditional model")
         traditional = fit_traditional(data)
         score(
             data,
@@ -212,6 +238,7 @@ def main() -> None:
                 "hmm": hmm,
                 "hmm_nu": hmm_nu,
                 "hmm_lag": hmm_lag,
+                "changepoint": changepoint,
                 "traditional": traditional,
             },
             lob,

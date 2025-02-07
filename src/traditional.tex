@@ -1,7 +1,9 @@
 The hidden Markov development model is compared to
-a more traditional two-step modelling approach.
-Denote $\tau \in \{2, ..., M\}$ the final body
-training data point, and
+$i$) a slightly more parsimonious latent change-point
+model and $ii$) a two-step modelling approach traditional
+in actuarial science.
+Denote $\tau \in \{2, ..., M\}$ the body to tail
+switch-over development period, and
 $\bm{\rho} = (\rho_{1}, \rho_{2}) \in \{2, ..., M\}$,
 where $\rho_{1} < \rho_{2}$,
 a vector of tail start and end training window
@@ -9,65 +11,82 @@ development points, respectively.
 While these constants could in theory vary over
 experience periods, there is typically insufficient
 data to do so.
-In the traditional approach, the chain ladder
+
+In the traditional two-step modelling process,
+the chain ladder
 method is first fit to training data up
-to development period $\tau$ inclusive and
+to development period $\tau - 1$ and
 predictions of the lower diagonal loss
-triangle are made up to and including $\tau$, only.
-Secondly, the tail model is fit to data
+triangle are made up to $\tau$, only.
+Secondly, the chosen tail model is fit to data
 lying within the development period
 interval $[\rho_{1}, \rho_{2}]$,
 and predictions from $\tau$ made to 
-some arbitrary development lag, $j^{*}$.
+some arbitrary development period, $j^{*}$.
 The challenge and art of this two-step process
-is in finding a value for $\tau + 1$ that
-identifies the development lag where
+is in finding a value for $\tau$ that
+identifies the development period where
 losses are plateauing in the tail,
 and finding values for $\rho_{1,2}$ that
 identify a suitable decaying curve of link ratios.
 While $\tau = \rho_{1}$ in some cases,
 more generally $\rho_{1} \leq \tau$.
-Note, this presents a difference between
-the two-step and hidden Markov model approaches:
-the hidden Markov model identifies clear
-body-to-tail switch-over points,
-whereas the the interval of data
-delineated by
-$\rho_{1,2}$ in the two-step process
-might overlap
-the final body training point, $\tau$.
-
-To maintain comparability to the hidden
-Markov model above, the two-step
-approach is also implemented in Stan
-and both models estimated
-with a shared variance. In real
-applications, uncertainty 
-from body to tail models is typically
-ignored, but this may
-unfairly penalise the two-step process
-compared to the hidden Markov models. The
-two-step approach differs from
-equation \ref{eq:hmm} in only two
+The two-step approach differs from
+equation (\ref{eq:hmm}) in only two
 ways:
 
 \begin{align}
 \begin{split}
 	y_{ij} &\sim 
 	\begin{cases}
-		\mathrm{Lognormal}(\mu_{1}, \sigma_{ij}) \quad j \leq \tau\\
+		\mathrm{Lognormal}(\mu_{1}, \sigma_{ij}) \quad j < \tau\\
 		\mathrm{Lognormal}(\mu_{2}, \sigma_{ij}) \quad \rho_{1} \leq j \leq \rho_{2}
 	\end{cases}\\
-	\log \bm{\alpha}_{1:\tau - 1} &\sim \mathrm{Normal}(0, 1)\\
+	\log \bm{\alpha}_{1:\tau - 2} &\sim \mathrm{Normal}(0, 1)\\
 \end{split}
 \end{align}
-
+%
 where now the decision between the two
 models is decided by $\tau$ and $\rho_{1,2}$.
 The further exception in the two-step approach
 is the use of a standard normal prior
 on the log-scale link ratios, rather than the
 constrained prior used in the hidden Markov models.
-The two-step model's $\tau - 1$ link
-ratios are all estimated directly and do not suffer
-from non-identifiability.
+
+The latent changepoint model offers a compromise
+between the two-step modelling process
+and the hidden Markov model.
+Like the hidden Markov model, the chain ladder
+and generalized Bondy models are fit jointly, 
+and like the two-step process the models
+switch over at some development period
+$\tau$. However,
+$\tau$ is considered to be a
+discrete parameter estimated
+in the model directly.
+The $\bm{\rho}$ parameters are not necessary
+because the generalized Bondy process is
+only fit from $\tau$ onwards.
+In practice, due to its discrete nature,
+$\tau$ is marginalised out of the model,
+and the prior on $\tau$, $p(\tau)$,
+is a discrete uniform distribution over the possible
+development period switch-over points in $\{2,...,M\}$.
+
+\begin{align}
+\begin{split}
+	y_{ij} &\sim 
+	\begin{cases}
+		\mathrm{Lognormal}(\mu_{1}, \sigma_{ij}) \quad j < \tau\\
+		\mathrm{Lognormal}(\mu_{2}, \sigma_{ij}) \quad j \geq \tau\\
+	\end{cases}\\
+    \log \bm{\alpha}_{1:M - 1} &\sim \mathrm{Normal}(0, \scriptstyle{\frac{1}{1:M-1}})\\
+    \tau &\sim \mathrm{DiscreteUniform}(2, M)\\
+\end{split}
+\end{align}
+%
+Like the hidden Markov model, we place a regularising
+prior on the log-scale link ratios of the chain-ladder
+component to handle potential unidentifiability
+at higher development periods where the process
+is more likely to be in the tail.
