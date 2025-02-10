@@ -7,6 +7,8 @@ of the Bayesian joint distribution of parameters and
 data: fitting a Bayesian model to datasets generated
 from its prior predictive distribution and averaging 
 over datasets should return the prior distribution.
+Specific simulated examples, in addition, helps
+build intuition about model dynamics.
 
 \subsection{Simulation-based calibration}
 Focusing on the base HMM model variant, 1000 
@@ -108,7 +110,7 @@ The latent change-point model detected the most
 likely switch-over point at $\tau = 4$ with probability
 46.5\%, but the relatively smooth dynamics of the
 second experience period and 9 training data points
-results in accuracte estimation and predictions. 
+results in accurate estimation and predictions. 
 In the remaining experience
 periods, however, the two-step and latent change-point approaches
 generalise poorly.
@@ -121,14 +123,12 @@ shows a case where the tail model is never
 entered by the HMM process, and the
 latent change-point and two-step processes
 consequently under-estimate true losses.
-This illustrates that,
+This example illustrates that
 if $\tau$ is chosen correctly, there is sufficient
 data available for model training,
 and the data is typically well-behaved,
 the two-step and latent change-point approaches 
 can provide more exact predictions.
-The uncertainty introduced in HMM model in this case
-can hurt predictive accuracy.
 However, if experience periods differ in their
 body-to-tail switch-over dynamics,
 which is highly expected, then overall
@@ -161,7 +161,7 @@ growing generalisation error.
         are shown above each plot.
         The two-step model was fit
         assuming $\tau = 6$ and
-        $\rho_{1,2} = (6, 10)$.
+        $\bm{\rho} = (6, 10)$.
     }
 	\label{fig:numerical}
 \end{figure}

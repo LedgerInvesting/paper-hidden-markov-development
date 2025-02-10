@@ -21,7 +21,7 @@ apart from ELPD values for the PP
 lines of business where the latent change-point
 performed marginally better than the nearest
 HMM model. The standard errors around the ELPD
-values, however, indicated there all the models
+values, however, indicated that all the models
 often performed within 2 standard errors from each other,
 apart from the OO line of business where the HMM models
 performed noticeably better.
@@ -32,7 +32,7 @@ Overall, the HMM-$\nu$ model attained
 75\% of the best average ELPD scores, and 50\%
 of the best average RMSE scores, meaning that
 allowing for tail processes to revert
-to the body in an important feature in making
+to the body is an important feature in making
 future predictions.
 Evaluating the predictions at the 10th
 development period
@@ -100,9 +100,9 @@ depending on the particular line of business
 (Figure \ref{fig:zstars}).
 The PP and CA lines showed, in general,
 the quickest development to the tail
-state, at development lag 2 for the HMM
+state, at development period 2 for the HMM
 and HMM-$\nu$ models, and by development
-lag 3 for most accident periods for the
+period 3 for most accident periods for the
 HMM-lag model. In contrast, WC stayed
 longest in the body state, followed by
 OO, and both WC and OO lines demonstrated
@@ -139,11 +139,14 @@ The average ELPD
 differences indicated that one of the hidden
 Markov models or the latent change-point
 model performed better than the
-two-step approach, although the two-step approach
-clearly performed best in terms of RMSE
-for the \cite{verrall2015} triangle,
-and was on par with the other models
-for the remaining literature triangles.
+two-step approach.
+However, the two-step model
+performed on-par with the change-point
+and hidden Markov models in terms of RMSE,
+and clearly performed best in RMSE
+for the \cite{verrall2015} triangle
+because of the triangle's relative smooth, 
+gradual dynamics.
 The manual selection of $\tau$
 for the two-step process often
 closely aligned with the 

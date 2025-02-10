@@ -27,7 +27,7 @@ The challenge and art of this two-step process
 is in finding a value for $\tau$ that
 identifies the development period where
 losses are plateauing in the tail,
-and finding values for $\rho_{1,2}$ that
+and finding values for $\bm{\rho}$ that
 identify a suitable decaying curve of link ratios.
 While $\tau = \rho_{1}$ in some cases,
 more generally $\rho_{1} \leq \tau$.
@@ -47,13 +47,15 @@ ways:
 \end{align}
 %
 where now the decision between the two
-models is decided by $\tau$ and $\rho_{1,2}$.
+models is decided by $\tau$ and $\bm{\rho}$.
 The further exception in the two-step approach
 is the use of a standard normal prior
 on the log-scale link ratios, rather than the
-constrained prior used in the hidden Markov models.
+regularising prior used in the hidden Markov models,
+because non-identifiability is, in general,
+no longer a concern.
 
-The latent changepoint model offers a compromise
+The latent change-point model offers a compromise
 between the two-step modelling process
 and the hidden Markov model.
 Like the hidden Markov model, the chain ladder
@@ -87,6 +89,6 @@ development period switch-over points in $\{2,...,M\}$.
 %
 Like the hidden Markov model, we place a regularising
 prior on the log-scale link ratios of the chain-ladder
-component to handle potential unidentifiability
+component to handle potential non-identifiability
 at higher development periods where the process
 is more likely to be in the tail.

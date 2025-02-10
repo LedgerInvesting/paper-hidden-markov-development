@@ -7,12 +7,11 @@ paid loss triangles from \cite{meyers2015}, 50 triangles
 for the four lines of business: private passenger auto (PP),
 workers compensation (WC), commerical auto (CA), and
 other occurrence (i.e. general) liability (OO).
-We removed triangles with zero loss values first,
-leaving 49 CA triangles, 48 OO triangles, and
-50 PP and WC triangles.
-Each triangle covers 10 years of historical
-accident periods and development, allowing splitting
-triangles into an upper diagonal of training data,
+We removed three triangles with zero loss values first,
+one from the CA dataset and two from the OO dataset.
+Each triangle covered 10 years of historical
+accident and development periods, amenable to partitioning
+into an upper diagonal of training data,
 $\mathcal{Y}$, and lower diagonal of test data,
 $\tilde{\mathcal{Y}}$.
 As these are yearly triangles, and have been
@@ -58,9 +57,10 @@ for each triangle.
 	\label{fig:industry-atas}
 \end{figure}
 
-Secondly, we used five
+Secondly, we used 5
 triangles presented in the
-relatively recent literature on papers on loss development
+relatively recent literature on key
+papers on loss development
 modelling,
 including tail development, that provide more
 historical data than the industry triangles:
@@ -85,14 +85,16 @@ The link ratios are displayed in Figure \ref{fig:literature}.
 Model performance can be split into two facets:
 accuracy and calibration.
 We summarised model accuracy using two metrics
-applied purely to the out-of-sample data: the expected
+applied to future out-of-sample data: the expected
 log predictive density (ELPD) and the root mean
 square error (RMSE). 
 The ELPD \citep{vehtari2017} is based on the logarithmic scoring
 rule, and is defined for a single triangle
 as the joint log density of the out-of-sample
 data and posterior distribution of the parameters. 
-In this way, it more heavily
+In this way, ELPD measures the log probability density
+of the out-of-sample data from the estimated model,
+and more heavily
 penalises models further from
 the true data generating process.
 Across each accident period $i$ and development
@@ -145,7 +147,7 @@ for each triangle, and therefore uncertainty
 in ELPD was still calculated.
 
 The RMSE was defined per out-of-sample data point in
-$\tilde{\mathcal{Y}}$
+$\tilde{\mathcal{Y}}$ as:
 
 \begin{equation}
 	\label{eq:rmse}
@@ -172,6 +174,5 @@ the empirical cumulative distribution functions,
 a quantity sometimes referred to as the
 randomised quantile residual \citep{dunn1996}.
 Well-calibrated models' percentiles should be
-uniformly distributed, as in the case
-of simulation-based calibration above.
+approximately uniformly distributed.
 

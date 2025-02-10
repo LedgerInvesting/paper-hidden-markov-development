@@ -1,7 +1,7 @@
-Actuarial science is one of the oldest areas
+Actuarial science, founded in the seventeenth century,
+is one of the oldest areas
 of applied statistics, 
-having been founded in the seventeenth
-century, and insurance continues to pose
+and insurance continues to pose
 many interesting statistical questions
 about risk and uncertainty.
 A core task in actuarial science is
@@ -17,8 +17,8 @@ claims already reported to insurance companies
 but payments for claims yet to be reported.
 In this way, insurance is unique in that 
 the eventual cost of 
-an insurance policy to the insurance
-company is unknown at the time of sale
+an insurance policy
+is unknown at the time of sale
 because insurance policies cover, for the most part,
 prospective accidents only.
 Together with the time it takes to report claims
@@ -39,8 +39,8 @@ for payments on claims yet to be made (loss reserves).
 This latter amount is frequently referred to as
 \textit{incurred but not reported} (IBNR), and
 includes future payments on
-claims already reported (`incurred by not enough reported'),
-as well as payments for claims not yet reported (`incurred by not
+claims already reported (`incurred but not enough reported'),
+as well as payments for claims not yet reported (`incurred but not
 yet reported').
 In non-life insurance, 
 such as property and casualty insurance,
@@ -62,11 +62,11 @@ taylor2003,wuthrich2008}.
 Loss development models are typically applied to sets of aggregated and tabulated
 data known as \textit{loss triangles}, where the rows represent
 intervals of time when accidents occurred, known as experience periods,
-and the columns represent evaluation points, known as development periods,
-of the cumulative or incremental cost of those claims reported in each accident year
+and the columns represent evaluation points, known as development periods or lags,
+showing the cumulative or incremental cost of those claims reported in each accident year
 (see Figure \ref{fig:schematic} for a worked example).
 The data structure represents an upper triangular matrix, hence
-the name loss triangle, and it is the task of loss development modelling 
+the name `loss triangle', and it is the task of loss development modelling 
 to complete, and potentially extend, the
 lower diagonal to produce predictions of ultimate loss.
 From early deterministic and 
@@ -93,13 +93,13 @@ indicating that the losses are approaching their ultimate value at later develop
 periods.
 In practice, however, link ratios often include periods of volatility, particularly
 for early development periods, and may further encode systematic
-and non-systematic effects across experience periods or 
-development period (e.g. the influence of the Covid-19 pandemic).
+and non-systematic effects across experience or 
+development periods (e.g. the influence of the Covid-19 pandemic).
 Depending on the degree of volatility and the amount of data available,
 link ratios estimated using popular methodologies
 may be insufficient to infer the ultimate losses for each experience period.
 For instance, at the latest development period in the data, link ratios
-may not be nearing unity.
+may not be nearing unity, suggesting further development is yet to come.
 Consequently, estimation of ultimate losses will require extending the link ratios
 to outside the domains of the focal triangle to include additional
 link ratios, known as \textit{tail factors}, that make assumptions
@@ -109,8 +109,9 @@ Like the loss development literature discussed above,
 tail factor estimation has had its own expansive history
 of deterministic and stochastic methods \citep{tailfactors2013}, and is of particular
 importance in `long-tailed' lines of business, such as workers' compensation or general
-liability, where experience periods might display continued growth and 
-volatility of loss amounts at relatively late development periods.
+liability, where growth of loss payments towards ultimate loss might be slow or
+volatile, 
+even at relatively late development periods.
 Of the various approaches used to calculate tail factors, many 
 use a second model fit to a portion
 of the focal triangle or to a subset of the link ratios
@@ -134,9 +135,9 @@ includes a number of
 subjective decisions that may not be optimal. 
 Namely, it necessitates manually selecting a development 
 period where the tail link ratios should take over from
-the body link ratios, and manually selecting portions of
+the body link ratios. It may also involve manually selecting portions of
 loss triangles to be used as training data that best match
-body and tail development model assumptions.
+body and tail model assumptions.
 The choice of development periods to use in each case
 can have important implications for predictions of ultimate
 loss.
@@ -150,8 +151,8 @@ in a triangle
 could miss important development features at later
 development periods and bias ultimate losses too low. 
 Moreover, the manual selection of training data windows
-and body-to-tail cut-off points
-are difficult to reproduce and
+and body-to-tail switch-over points
+are difficult to reproduce, time consuming and
 opens analysts to many `researchers degrees of freedom' \citep{simmons2011}.
 
 Methods that simultaneously estimate body
@@ -176,12 +177,12 @@ implemented a hierarchical Bayesian logistic growth curve model to
 cumulative loss data. However, fitting a single parametric
 curve that assumes monotonicity in expectation might under-estimate
 systematic volatility in portions of the triangle that
-analysts do not want to label as residual noise.
+analysts do not want to label simply as residual noise.
 Finally, \cite{verrall2012} use reversible jump Markov
 chain Monte Carlo to combine a Bayesian chain ladder model,
-applied before some tail cut-off point, with an exponential
-decay process after the cut-off, and allow the model to infer
-where the cut-off should occur. Additionally, 
+applied before some body-to-tail switch-over point, with an exponential
+decay process in the tail, and allow the model to infer
+where the switch-over should occur. Additionally, 
 \cite{verrall2015} demonstrate how the same model
 can be estimated in a Bayesian model averaging context.
 Although this approach is arguably the most flexible,
@@ -226,8 +227,8 @@ change-point model.
 Models are fit using Bayesian estimation
 and following a modern Bayesian
 workflow \citep{gelman2020}.
-All Python and Stan code, and all datasets, to 
+All code and datasets to 
 reproduce the results
 are accessible at the Github repository
-\url{https://github.com/LedgerInvesting/hidden-markov-development-2024}.
+\url{https://github.com/LedgerInvesting/paper-hidden-markov-development}.
 

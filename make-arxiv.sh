@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 basedir=$PWD
 arxivdir=paper/arxiv
 
@@ -14,6 +16,8 @@ cp src/references.bib $arxivdir/src
 cp src/*.tex $arxivdir/src
 cp code/figures/*.png $arxivdir/figures
 cp code/figures/*.pdf $arxivdir/figures
+
+echo "Copied files"
 
 ./generate.sh arxiv main
 open $arxivdir/main.pdf
