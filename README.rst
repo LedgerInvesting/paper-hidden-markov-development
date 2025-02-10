@@ -27,7 +27,8 @@ which can be installed after the above requiremnets using
 
 .. code-block:: bash
 
-   install_cmdstan
+   mkdir -p code/.cmdstan
+   install_cmdstan -d code/.cmdstan -v 2.36.0
 
 See `CmdStanPy's installation page <https://mc-stan.org/cmdstanpy/installation.html#cmdstan-installation>`_
 for more information.
