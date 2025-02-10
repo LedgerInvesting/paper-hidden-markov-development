@@ -13,7 +13,7 @@
 \begin{document}
 
 \begin{tikzpicture}[
-    base/.style = {circle, thick, node distance = 4em, draw=black, minimum size=0.8cm},
+    base/.style = {circle, thick, node distance = 4em, draw=black, minimum size=1.1cm},
     state1/.style = {base, fill=body, text=white},
     state2/.style = {base, fill=tail},
     observed1/.style = {rectangle, ultra thin, fill=body},
@@ -22,34 +22,34 @@
 ]
 
     % latents
-    \node[fill=white] (zbase) {$z_{t}$};
-    \node[state1, right of = zbase] (z1) {$z_{1}$};
-    \node[state1, right of = z1] (z2) {$z_{2}$};
-    \node[state1, right of = z2] (z3) {$z_{3}$};
-    \node[state1, right of = z3] (z4) {$z_{4}$};
-    \node[state1, right of = z4] (z5) {$z_{5}$};
-    \node[state1, right of = z5] (z6) {$z_{6}$};
-    \node[state2, right of = z6] (z7) {$z_{7}$};
-    \node[state2, right of = z7] (z8) {$z_{8}$};
-    \node[state2, right of = z8] (z9) {$z_{9}$};
-    \node[state2, right of = z9] (z10) {$z_{10}$};
+    \node[fill=white] (zbase) {$z_{1j}$};
+    \node[state1, right of = zbase] (z1) {$z_{11}$};
+    \node[state1, right of = z1] (z2) {$z_{12}$};
+    \node[state1, right of = z2] (z3) {$z_{13}$};
+    \node[state1, right of = z3] (z4) {$z_{14}$};
+    \node[state1, right of = z4] (z5) {$z_{15}$};
+    \node[state1, right of = z5] (z6) {$z_{16}$};
+    \node[state2, right of = z6] (z7) {$z_{17}$};
+    \node[state2, right of = z7] (z8) {$z_{18}$};
+    \node[state2, right of = z8] (z9) {$z_{19}$};
+    \node[state2, right of = z9] (z10) {$z_{1,10}$};
 
     % observed
-    \node[fill=white, above of = zbase, yshift=2cm] (ybase) {$y_{t}$};
-    \node[observed, right of = ybase] (y1) {$y_{1}$};
-    \node[observed, right of = y1] (y2) {$y_2$};
-    \node[observed, right of = y2] (y3) {$y_3$};
-    \node[observed, right of = y3] (y4) {$y_4$};
-    \node[observed, right of = y4] (y5) {$y_5$};
-    \node[observed, right of = y5] (y6) {$y_6$};
-    \node[observed, right of = y6] (y7) {$y_7$};
-    \node[observed, right of = y7] (y8) {$y_8$};
-    \node[observed, right of = y8] (y9) {$y_9$};
-    \node[observed, right of = y9] (y10) {$y_{10}$};
+    \node[fill=white, above of = zbase, yshift=2cm] (ybase) {$y_{1j}$};
+    \node[observed, right of = ybase] (y1) {$y_{11}$};
+    \node[observed, right of = y1] (y2) {$y_{12}$};
+    \node[observed, right of = y2] (y3) {$y_{13}$};
+    \node[observed, right of = y3] (y4) {$y_{14}$};
+    \node[observed, right of = y4] (y5) {$y_{15}$};
+    \node[observed, right of = y5] (y6) {$y_{16}$};
+    \node[observed, right of = y6] (y7) {$y_{17}$};
+    \node[observed, right of = y7] (y8) {$y_{18}$};
+    \node[observed, right of = y8] (y9) {$y_{19}$};
+    \node[observed, right of = y9] (y10) {$y_{1,10}$};
 
     % flows
     \draw[->] (z1) -- (z2);
-    \draw[->, dashed] (z1) to [out=270, in=270] node[below, font=\footnotesize] (theta) {$p(z_{2} \mid z_{1}, \bm{\psi}) = \theta_{1,1}$} (z2);
+    \draw[->, dashed] (z1) to [out=270, in=270] node[below, font=\footnotesize] (theta) {$p(z_{12} \mid z_{11}, \bm{\psi}) = \theta_{11}$} (z2);
     \draw[->] (z2) -- (z3);
     \draw[->] (z3) -- (z4);
     \draw[->] (z4) -- (z5);
@@ -71,9 +71,9 @@
 
 	% matrices
 	\node[below right of = theta, yshift=-0.5cm, xshift=2cm] (tm) {$\begin{aligned}
-			\mathbf{\Theta} = \begin{pmatrix} 
-				\theta_{1,1} & \theta_{1,2}\\ 
-				\theta_{2,1} & \theta_{2, 2} 
+            \mathbf{\Theta_{11}} = \begin{pmatrix} 
+				\theta_{11} & \theta_{12}\\ 
+				\theta_{21} & \theta_{22} 
 			\end{pmatrix}
 		\end{aligned}
 	$};
@@ -91,7 +91,7 @@
     ]
     {
         % row 1
-        \node[observed1] {}; \&
+        \node[observed1] (row1) {}; \&
         \node[observed1] {}; \&
         \node[observed1] {}; \&
         \node[observed1] {}; \&
@@ -164,16 +164,19 @@
     \node [observed2, right of = body, font=\footnotesize, minimum size=1cm, inner sep=5pt] (tail) {Tail};
 
     % mappings
-    \draw[->, dashed] (z1) -- node[left, font=\footnotesize] (fx) {$f_{1}(\bm{\phi})$} (y1);
+    \draw[->, dashed] (z1) -- node[left, font=\footnotesize] (fx) {$\mu_{1_{11}}$} (y1);
     \draw[->, dashed] (z2) -- (y2);
     \draw[->, dashed] (z3) -- (y3);
     \draw[->, dashed] (z4) -- (y4);
     \draw[->, dashed] (z5) -- (y5);
     \draw[->, dashed] (z6) -- (y6);
-    \draw[->, dashed] (z7) -- node[left, font=\footnotesize] (f2x) {$f_{2}(\bm{\phi})$} (y7);
+    \draw[->, dashed] (z7) -- node[left, font=\footnotesize] (f2x) {$\mu_{2_{17}}$} (y7);
     \draw[->, dashed] (z8) -- (y8);
     \draw[->, dashed] (z9) -- (y9);
     \draw[->, dashed] (z10) -- (y10);
+
+    % first row map
+    \draw[->, line width=1pt] (row1) to[out=180, in=270] node[left] () {} ([yshift=-2em]z5);
 
 \end{tikzpicture}
 \end{document}

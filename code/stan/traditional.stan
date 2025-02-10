@@ -15,8 +15,12 @@ data {
   real<lower=0> MAX_PRED;
 }
 
+transformed data {
+  int<lower=1, upper=M - 1> P = tau - 2;
+}
+
 parameters {
-  vector[tau - 1] alpha_star;
+  vector[P] alpha_star;
   real<lower=0> omega_star;
   real beta_star;
   vector[2] gamma;
@@ -24,7 +28,7 @@ parameters {
 
 transformed parameters {
   vector[T] lp = rep_vector(0.0, T);
-  vector<lower=0>[tau - 1] alpha = exp(alpha_star);
+  vector<lower=0>[P] alpha = exp(alpha_star);
   real<lower=0> omega = exp(omega_star);
   real<lower=0, upper=1> beta = inv_logit(beta_star);
 
@@ -35,7 +39,7 @@ transformed parameters {
     if(lag > 1){
       real mu;
       real sigma2 = exp(gamma[1] + gamma[2] * lag + log(y[B[t]]));
-      if(lag <= tau){
+      if(lag < tau){
         mu = alpha_star[lag - 1] + log(y[B[t]]);
         lp[t] += lognormal_lpdf(y[B[t] + 1] | mu, sqrt(sigma2));
       }
@@ -49,7 +53,7 @@ transformed parameters {
 
 model {
   alpha_star ~ normal(0, 1);
-  omega_star ~ normal(0, 0.1);
+  omega_star ~ normal(0, 1);
   beta_star ~ normal(0, 1);
   gamma ~ normal(0, 1);
 
@@ -73,11 +77,11 @@ generated quantities {
       else 
         lagged_y = y_tilde[B[t]];
     }
-    if(lag <= tau && lag > 1){
+    if(lag < tau && lag > 1){
       mu = log(lagged_y) + alpha_star[lag - 1];
       sigma2 = exp(gamma[1] + gamma[2] * lag + log(lagged_y));
     }
-    else if(lag > tau) {
+    else if(lag >= tau) {
       mu = log(lagged_y) + omega_star * pow(beta, lag);
       sigma2 = exp(gamma[1] + gamma[2] * lag + log(lagged_y));
     }

@@ -23,6 +23,7 @@ MODEL_NAMES = [
     "HMM",
     r"HMM-$\nu$",
     "HMM-lag",
+    "Change-point",
     "Two-step",
 ]
 
@@ -44,37 +45,50 @@ DataType = List[List[int]]
 
 
 def plot_numerical(numerical: Dict[str, Dict[str, List]]):
-    R = 2
-    C = 10
+    R = 10
+    C = 3
     rc = [(r, c) for r in range(R) for c in range(C)]
-    fig, ax = plt.subplots(R, C, figsize=(16, 5), sharex=True)
+    fig, ax = plt.subplots(R, C, figsize=(12, 12), sharex=True)
     fig.supxlabel("Development period", fontsize=16)
     fig.supylabel("Losses", fontsize=16)
     rng = np.random.default_rng(1234)
 
     name = "simple"
-    y, z, y_tilde, z_star, y_tilde_trad, z_star_trad, elpds = numerical[name].values()
-    preds = zip(np.array([y_tilde, y_tilde_trad]), np.array([z_star, z_star_trad]))
+    (
+        y,
+        z,
+        y_tilde,
+        z_star,
+        y_tilde_changepoint,
+        z_star_changepoint,
+        y_tilde_trad,
+        z_star_trad,
+        elpds,
+    ) = numerical[name].values()
+    preds = zip(
+        np.array([y_tilde, y_tilde_changepoint, y_tilde_trad]),
+        np.array([z_star, z_star_changepoint, z_star_trad]),
+    )
     N, M = y.shape
 
-    for r, (y_tilde, z_star) in enumerate(preds):
-        for c in range(C):
+    for c, (y_tilde, z_star) in enumerate(preds):
+        for r in range(R):
             ax[r, c].grid(zorder=-5)
             ax[r, c].set_yticklabels([])
             ax[r, c].set_xticks(range(0, M, 3))
             ax[r, c].set_xticklabels(range(1, M + 1, 3))
-            body = y[c][z[c] == 0]
-            tail = y[c][z[c] == 1]
-            train_index = [i for i in range(M) if i < N - c]
-            test_index = [i for i in range(M) if i >= N - c]
-            body_index = [i for i in range(M) if not z[c][i]]
-            tail_index = [i for i in range(M) if z[c][i]]
-            train = y[c][train_index]
-            test = y[c][test_index]
+            body = y[r][z[r] == 0]
+            tail = y[r][z[r] == 1]
+            train_index = [i for i in range(M) if i < N - r]
+            test_index = [i for i in range(M) if i >= N - r]
+            body_index = [i for i in range(M) if not z[r][i]]
+            tail_index = [i for i in range(M) if z[r][i]]
+            train = y[r][train_index]
+            test = y[r][test_index]
             samples = rng.choice(range(y_tilde.shape[0]), 200)
             for sample in samples:
-                z_pred = z_star[sample][c] - 1
-                y_pred = y_tilde[sample][c]
+                z_pred = z_star[sample][r] - 1
+                y_pred = y_tilde[sample][r]
                 body_pred = [i for i in range(M) if not z_pred[i]]
                 tail_pred = [i for i in range(M) if z_pred[i]]
                 for i in range(1, M):
@@ -86,12 +100,12 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
                         alpha=0.3,
                         zorder=-1,
                     )
-            y_bar = y_tilde.mean(axis=0)[c]
-            body_bar = [i for i in range(M) if (z_star - 1).mean(axis=0)[c][i] < 0.5]
+            y_bar = y_tilde.mean(axis=0)[r]
+            body_bar = [i for i in range(M) if (z_star - 1).mean(axis=0)[r][i] < 0.5]
             for i in range(1, M):
-                if not r and not c and i == 1:
+                if not c and not r and i == 1:
                     label = "Body sample"
-                elif not r and not c and i == (M - 1):
+                elif not c and not r and i == (M - 1):
                     label = "Tail sample"
                 else:
                     label = ""
@@ -104,20 +118,20 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
                 )
             for i in range(M):
                 marker = "o" if i in train_index else "^"
-                if not r and c == 1 and not i:
+                if not c and r == 1 and not i:
                     label = "Body (train)"
-                elif not r and c == 5 and i == (M - 1):
+                elif not c and r == 5 and i == (M - 1):
                     label = "Body (test)"
-                elif not r and not c and i == (M - 1):
+                elif not c and not r and i == (M - 1):
                     label = "Tail (train)"
-                elif not r and c == 1 and i == (M - 1):
+                elif not c and r == 1 and i == (M - 1):
                     label = "Tail (test)"
                 else:
                     label = ""
                 if i in body_index:
                     ax[r, c].scatter(
                         i,
-                        y[c][i],
+                        y[r][i],
                         color=BODY,
                         edgecolor="black",
                         marker=marker,
@@ -128,7 +142,7 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
                 else:
                     ax[r, c].scatter(
                         i,
-                        y[c][i],
+                        y[r][i],
                         color=TAIL,
                         edgecolor="black",
                         marker=marker,
@@ -136,20 +150,20 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
                         zorder=1,
                         label=label,
                     )
-            if not c:
+            if not r:
                 ax[r, c].text(
-                    -0.1,
+                    0,
                     1.1,
-                    LETTERS[r],
+                    LETTERS[c],
                     transform=ax[r, c].transAxes,
                     fontsize=20,
                     fontweight="bold",
                 )
-            if c:
+            if r:
                 ax[r, c].text(
                     0,
                     1.025,
-                    f"ELPD: {round(elpds[c - 1][r], 2)}",
+                    f"ELPD: {round(elpds[r - 1][c], 2)}",
                     transform=ax[r, c].transAxes,
                     fontsize=12,
                 )
@@ -175,7 +189,7 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
         labels_handles.keys(),
         loc="upper center",
         ncol=3,  # len(labels_handles),
-        bbox_to_anchor=(0.5, 1.2),
+        bbox_to_anchor=(0.5, 1.075),
     )
     plt.savefig(PATH + "numerical.png")
     plt.close()
@@ -236,7 +250,7 @@ def plot_atas(data: List[List[DataType]]) -> None:
 
 
 def plot_scores(
-    scores: Dict[str, Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]]
+    scores: Dict[str, Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]],
 ) -> None:
     R = len(scores)
     C = len(scores[next(iter(scores))])
@@ -350,8 +364,6 @@ def plot_percentiles(percentiles: Dict[str, np.ndarray]):
     C = percentiles[next(iter(percentiles))].shape[1]
     rc = [(r, c) for r in range(R) for c in range(C)]
     fig, ax = plt.subplots(R, C, sharex=True, sharey="row")
-    bins = 30
-    pad = 5
 
     L = 100
     M = percentiles[next(iter(percentiles))][:, 0, :].size
@@ -368,7 +380,7 @@ def plot_percentiles(percentiles: Dict[str, np.ndarray]):
         (L, mean),
         (L + nudge, lower),
     ]
-    hist_pars = dict(alpha=0.6, bins=bins, edgecolor="black")
+    hist_pars = dict(alpha=0.6, bins=bins)
     for i, (r, c) in enumerate(rc):
         lob = list(percentiles)[r]
         p = percentiles[lob][:, c, :] * 100
@@ -560,7 +572,9 @@ def plot_z_accuracy(z_star: np.ndarray):
     plt.close()
 
 
-def plot_literature_results(literature, literature_scores, literature_zstars):
+def plot_literature_results(
+    literature, literature_scores, literature_zstars, literature_taustars
+):
     R, C = 5, 4
     rc = [(r, c) for r in range(R) for c in range(C)]
     fig, ax = plt.subplots(R, C, figsize=(14, 12))
@@ -586,12 +600,12 @@ def plot_literature_results(literature, literature_scores, literature_zstars):
             ax[r, c].axvline(tau - 1, color="black", lw=2, label=r"$\tau$")
             ax[r, c].axvline(rho[0] - 1, color="blue", lw=2, label=r"$\rho_{1,2}$")
             ax[r, c].axvline(rho[1] - 1, color="blue", lw=2)
-            ax[r, c].errorbar(grid, means, yerr=error, fmt="o", ms=8, color="black")
+            ax[r, c].errorbar(grid, means, yerr=error, fmt="o", ms=6, color="black")
             ax[r, c].set_title(key.replace(", ", "\n"), fontsize=12)
             ax[r, c].set_ylabel("Link Ratio")
             ax[r, c].legend(loc="upper right")
             if r == (R - 1):
-                ax[r, c].set_xlabel("Development lag")
+                ax[r, c].set_xlabel(r"Development lag")
             ax[r, c].text(
                 -0.125,
                 1.1,
@@ -600,10 +614,35 @@ def plot_literature_results(literature, literature_scores, literature_zstars):
                 fontsize=20,
                 fontweight="bold",
             )
-        if c in (1, 2):
-            score_raw = np.array(scores[c - 1]["scores"])
-            score = np.sqrt(score_raw) * LITERATURE_SCALER if c == 2 else score_raw
-            if c == 1:
+        if c == 1:
+            zstars = literature_zstars[key][0]
+            period_lengths = [
+                int(v)
+                for period, values in literature[key].items()
+                for v in [period] * len(values)
+            ][: len(zstars)]
+            zstar_zip = list(zip(period_lengths, zstars))
+            tails = [
+                sum(not round(z) for i, z in zstar_zip if i == p) + 1
+                for p in sorted(set(period_lengths))
+            ]
+            tails_counts = np.unique(tails, return_counts=True)
+            zstar_max = sorted(zip(*tails_counts), key=lambda i: i[1], reverse=True)[0][
+                0
+            ]
+            taustar = np.unique(literature_taustars[key], return_counts=True)
+            taustar_max = sorted(zip(*taustar), key=lambda i: i[1], reverse=True)[0][0]
+            ax[r, c].bar(
+                taustar[0], taustar[1] / 10e3, facecolor="black", edgecolor="black"
+            )
+            ax[r, c].set_xticks(np.arange(2, len(grid) + 1, 3))
+            ax[r, c].set_ylabel("Proportion")
+            if r == (R - 1):
+                ax[r, c].set_xlabel(r"$\tau$")
+        if c in (2, 3):
+            score_raw = np.array(scores[c - 2]["scores"])
+            score = np.sqrt(score_raw) * LITERATURE_SCALER if c == 3 else score_raw
+            if c == 2:
                 ordered = sorted(
                     [(s, i) for i, s in enumerate(score.sum(axis=2).mean(axis=0))],
                     reverse=True,
@@ -634,7 +673,7 @@ def plot_literature_results(literature, literature_scores, literature_zstars):
                 )
             names = [MODEL_NAMES[i] for _, i in ordered]
             lowers, uppers = diffs_mu - diffs_se * 2, diffs_mu + diffs_se * 2
-            marker = "^" if c == 2 else "o"
+            marker = "^" if c == 3 else "o"
             errors = [
                 (abs(low - mu), abs(mu - high))
                 for mu, low, high in zip(diffs_mu, lowers, uppers)
@@ -652,7 +691,7 @@ def plot_literature_results(literature, literature_scores, literature_zstars):
                 if not i:
                     ax[r, c].text(
                         0,
-                        -0.3,
+                        -0.5,
                         ordered[0][0].round(1),
                         fontsize=12,
                         ha="center",
@@ -663,34 +702,7 @@ def plot_literature_results(literature, literature_scores, literature_zstars):
             ax[r, c].axvline(0, ls=":", color="gray")
             ax[r, c].set_ylim(ax[r, c].get_ylim()[::-1])
             if r == (R - 1):
-                ax[r, c].set_xlabel("ELPD difference" if c == 1 else "RMSE difference")
-
-        if c == 3:
-            score_raw = np.array(scores[0]["scores"])
-            score = np.sqrt(score_raw) * LITERATURE_SCALER if c == 2 else score_raw
-            _, best = max(
-                sorted(
-                    [(s, i) for i, s in enumerate(score.sum(axis=2).mean(axis=0)[:-1])],
-                    reverse=True,
-                )
-            )
-            zstars = literature_zstars[key][0]
-            period_lengths = [
-                int(v)
-                for period, values in literature[key].items()
-                for v in [period] * len(values)
-            ][: len(zstars)]
-            zstar_zip = list(zip(period_lengths, zstars))
-            tails = [
-                sum(not round(z) for i, z in zstar_zip if i == p) + 1
-                for p in sorted(set(period_lengths))
-            ]
-            bars, heights = np.unique(tails, return_counts=True)
-            ax[r, c].bar(bars, heights, facecolor="white", edgecolor="black")
-            ax[r, c].set_xticks(range(1, max(tails) + 1, 2))
-            ax[r, c].set_xticklabels(range(1, max(tails) + 1, 2))
-            if r == (R - 1):
-                ax[r, c].set_xlabel("Development lag")
+                ax[r, c].set_xlabel("ELPD difference" if c == 2 else "RMSE difference")
 
     fig.align_ylabels()
     plt.savefig(PATH + "/literature.png")

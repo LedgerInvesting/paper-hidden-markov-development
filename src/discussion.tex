@@ -11,21 +11,24 @@ a range of different datasets,
 the hidden Markov model variants
 provided similar results to, 
 and often out-performed,
-the traditional two-step approach.
+the traditional two-step approach
+and a latent change-point model.
 The hidden Markov models'
 automated detection
 of body and tail processes
 more gracefully captures
 loss development dynamics
 that may vary over triangle
-experience periods, as well as
-reduce 
-analysts' degrees of freedom
+experience periods, which
+reduces analysts' degrees of freedom
 that make the traditional
 two-step approach reliant
 on difficult-to-reproduce
 and variable subjective
-decisions.
+decisions. The hidden Markov
+model further saves analysts'
+time in manually selecting
+body and tail switch-over points.
 
 The hidden Markov development model 
 posits a clear data-generating process for
@@ -37,17 +40,17 @@ periods of loss development, and can interchange
 depending on the context, as in the 
 HMM-$\nu$ model variant here.
 In this way, the hidden Markov model is not a strictly
-analagous implementation of the two-step
+analogous implementation of the two-step
 approach,
 as the two-step approach allows analysts
 to choose tail model training data windows
-that overlap the body-to-tail cutoff point.
+that overlap the body-to-tail switch-over point.
 Thus, the same data points may be used in
 estimation of body and tail processes, rather
-than a discrete cutoff point between the two.
+than a discrete switch-over point between the two.
 Despite this flexibility, the two-step approach
 is not a single generative model, and should an
-analyst choose values for $\tau$ and $\rho_{1,2}$
+analyst choose values for $\tau$ and $\bm{\rho}$
 that are not representative of a particular
 experience period, the predictions from
 such a model could be extremely biased,
@@ -55,7 +58,7 @@ as shown in the example of Figure \ref{fig:numerical}.
 While the hidden Markov model may still
 make relatively poor predictions for those experience
 periods with little data (e.g. see the last
-column of panel A in Figure \ref{fig:numerical}),
+row of panel A in Figure \ref{fig:numerical}),
 uncertainty in the true latent state, $\bm{z}$,
 is more-accurately accounted for.
 
@@ -72,7 +75,8 @@ large insurers with mostly stable
 loss dynamics \citep[see][appendix A]{meyers2015}
 over a period of 10 years.
 Due to the number of triangles, the two-step
-approach's cutoff points, $\tau$ and $\rho_{1,2}$,
+approach's manually-selected variables,
+$\tau$ and $\bm{\rho}$,
 were chosen based on average empirical link
 ratios, which might not have been the best
 selection points for some triangles.
@@ -104,8 +108,7 @@ for ease of access
 and comparison of other loss development
 modelling approaches.
 
-Both the hidden Markov and two-step
-approaches demonstrated relatively poor
+All models demonstrated relatively poor
 calibration on the out-of-sample
 data from the \cite{meyers2015}
 dataset (Figure \ref{fig:percentiles}). 
@@ -114,8 +117,8 @@ the out-of-sample
 predictions were often too
 uncertain, producing a
 predominance of percentiles falling
-within the central range of
-possible percentiles.
+closer to 50\% than in the extremes
+of the distributions.
 Few articles have shown calibration
 plots from fully-Bayesian posterior
 distributions on out-of-sample
@@ -132,11 +135,10 @@ distribution with mean and variance
 informed by the total ultimate losses
 from their models. Thus, these
 are not directly comparable because
-the results above average percentiles
-over each posterior predictive distribution
-in the test data, not a distribution informed
-by just the average of posterior predictive
-distributions.
+the approach in this paper marginalises the percentiles
+over the each posterior predictive distribution
+in the test data, rather than using the
+the mean posterior prediction only.
 
 The hidden Markov models presented here
 could be extended in a number of useful

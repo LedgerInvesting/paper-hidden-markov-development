@@ -5,7 +5,9 @@ from scipy.special import logsumexp
 
 import simulate
 
+csp.set_cmdstan_path(".cmdstan/cmdstan-2.36.0")
 HMM = csp.CmdStanModel(stan_file="stan/hmm.stan")
+CHANGEPOINT = csp.CmdStanModel(stan_file="stan/changepoint.stan")
 TRADITIONAL = csp.CmdStanModel(stan_file="stan/traditional.stan")
 
 SEED = 1234
@@ -93,6 +95,8 @@ def fit(data, model):
     y_tilde = fit.y_tilde.reshape((fit.y_tilde.shape[0], N, M))
     if "z_star" in fit.stan_variables():
         z_star = fit.z_star.reshape((fit.z_star.shape[0], N, M))
+    elif "tau_star" in fit.stan_variables():
+        z_star = fit.tau_star
     else:
         z_star = []
     ll = fit.log_lik.reshape((fit.log_lik.shape[0], N, M))
@@ -106,11 +110,21 @@ def simple():
     y, z = simulate_data(alpha, pi, nu)
     data = stan_data(y, z)
     y_tilde, z_star, ll = fit(data, model=HMM)
+    y_tilde_changepoint, tau_star, ll_changepoint = fit(data, model=CHANGEPOINT)
     y_tilde_trad, _, ll_trad = fit(data, model=TRADITIONAL)
     elpds = [
         np.sum(
             logsumexp(ll.reshape((ll.shape[0], N, M))[:, i, (M - i) :], axis=0)
             - np.log(ll.shape[0])
+        )
+        for i in range(N)
+    ][1:]
+    elpds_changepoint = [
+        np.sum(
+            logsumexp(
+                ll_changepoint.reshape((ll.shape[0], N, M))[:, i, (M - i) :], axis=0
+            )
+            - np.log(ll_changepoint.shape[0])
         )
         for i in range(N)
     ][1:]
@@ -121,9 +135,18 @@ def simple():
         )
         for i in range(N)
     ][1:]
+    z_star_changepoint = np.array(
+        [
+            [
+                [1] * (int(tau_star[s]) - 1) + [2] * (M - int(tau_star[s]) + 1)
+                for n in range(N)
+            ]
+            for s in range(y_tilde.shape[0])
+        ]
+    )
     z_star_trad = np.array(
         [
-            [[1] * TAU + [2] * (M - TAU) for n in range(N)]
+            [[1] * (TAU - 1) + [2] * (M - TAU + 1) for n in range(N)]
             for s in range(y_tilde.shape[0])
         ]
     )
@@ -133,9 +156,11 @@ def simple():
             "z": z.tolist(),
             "y_tilde": y_tilde.tolist(),
             "z_star": z_star.tolist(),
+            "y_tilde_changepoint": y_tilde_changepoint.tolist(),
+            "z_star_changepoint": z_star_changepoint.tolist(),
             "y_tilde_trad": y_tilde_trad.tolist(),
             "z_star_trad": z_star_trad.tolist(),
-            "elpds": list(zip(elpds, elpds_trad)),
+            "elpds": list(zip(elpds, elpds_changepoint, elpds_trad)),
         },
         open("results/simple_sim.json", "w"),
     )

@@ -2,8 +2,6 @@
 \usepackage{preprint}
 
 \input{\src/title.tex}
-\author[]{Conor Goold\thanks{conor@ledgerinvesting.com}}
-\affil[]{Ledger Investing, Inc.}
 
 \begin{document}
 \maketitle
@@ -14,22 +12,19 @@
 \label{sec:introduction}
 \input{\src/introduction.tex}
 
-\section{Materials and methods}
-\label{sec:methods}
-
-\subsection{Hidden Markov development model}
+\section{Hidden Markov development model}
 \input{\src/formulation.tex}
 
-\subsection{Two-step approach}
+\section{Competing statistical models}
 \input{\src/traditional.tex}
 
-\subsection{Simulation-based calibration}
-\input{\src/sbc.tex}
-
-\subsection{Datasets and model performance}
+\section{Datasets and model performance}
 \input{\src/datasets.tex}
 
-\section{Results}
+\section{Simulation-based calibration and simulated examples}
+\input{\src/sbc.tex}
+
+\section{Performance on industry data}
 \label{sec:results}
 \input{\src/results.tex}
 

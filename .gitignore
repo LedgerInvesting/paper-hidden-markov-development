@@ -9,3 +9,10 @@
 **/*.DS_Store
 
 **/__pycache__
+
+*.hpp
+
+revisions
+paper/cover-letter*
+paper/arxiv
+
