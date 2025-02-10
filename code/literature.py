@@ -206,6 +206,7 @@ def score(models, triangle, paper):
     with open(RESULTS + f"/taustar-{paper}.json", "w") as f:
         json.dump(tau_stars.tolist(), f)
 
+
 def main():
     for paper, file in TRIANGLES.items():
         logger.info(f"Fitting models to {paper}")

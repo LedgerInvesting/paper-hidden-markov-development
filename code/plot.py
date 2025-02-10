@@ -54,8 +54,21 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
     rng = np.random.default_rng(1234)
 
     name = "simple"
-    y, z, y_tilde, z_star, y_tilde_changepoint, z_star_changepoint, y_tilde_trad, z_star_trad, elpds = numerical[name].values()
-    preds = zip(np.array([y_tilde, y_tilde_changepoint, y_tilde_trad]), np.array([z_star, z_star_changepoint, z_star_trad]))
+    (
+        y,
+        z,
+        y_tilde,
+        z_star,
+        y_tilde_changepoint,
+        z_star_changepoint,
+        y_tilde_trad,
+        z_star_trad,
+        elpds,
+    ) = numerical[name].values()
+    preds = zip(
+        np.array([y_tilde, y_tilde_changepoint, y_tilde_trad]),
+        np.array([z_star, z_star_changepoint, z_star_trad]),
+    )
     N, M = y.shape
 
     for c, (y_tilde, z_star) in enumerate(preds):
@@ -559,7 +572,9 @@ def plot_z_accuracy(z_star: np.ndarray):
     plt.close()
 
 
-def plot_literature_results(literature, literature_scores, literature_zstars, literature_taustars):
+def plot_literature_results(
+    literature, literature_scores, literature_zstars, literature_taustars
+):
     R, C = 5, 4
     rc = [(r, c) for r in range(R) for c in range(C)]
     fig, ax = plt.subplots(R, C, figsize=(14, 12))
@@ -612,10 +627,14 @@ def plot_literature_results(literature, literature_scores, literature_zstars, li
                 for p in sorted(set(period_lengths))
             ]
             tails_counts = np.unique(tails, return_counts=True)
-            zstar_max = sorted(zip(*tails_counts), key=lambda i: i[1], reverse=True)[0][0]
+            zstar_max = sorted(zip(*tails_counts), key=lambda i: i[1], reverse=True)[0][
+                0
+            ]
             taustar = np.unique(literature_taustars[key], return_counts=True)
             taustar_max = sorted(zip(*taustar), key=lambda i: i[1], reverse=True)[0][0]
-            ax[r, c].bar(taustar[0], taustar[1] / 10e3, facecolor="black", edgecolor="black")
+            ax[r, c].bar(
+                taustar[0], taustar[1] / 10e3, facecolor="black", edgecolor="black"
+            )
             ax[r, c].set_xticks(np.arange(2, len(grid) + 1, 3))
             ax[r, c].set_ylabel("Proportion")
             if r == (R - 1):

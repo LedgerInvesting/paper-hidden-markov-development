@@ -109,6 +109,7 @@ LITERATURE_TAUSTARS = {
     "Verrall & Wuthrich (2015)": "results/taustar-verrall-wuthrich-2015-.json",
 }
 
+
 def load(file: str) -> Dict[str, Any]:
     return json.load(open(file, "r"))
 
@@ -134,7 +135,9 @@ def main() -> None:
         name: (load(file[0]), load(file[1])) for name, file in LITERATURE_SCORES.items()
     }
     literature_zstars = {name: load(file) for name, file in LITERATURE_ZSTARS.items()}
-    literature_taustars = {name: load(file) for name, file in LITERATURE_TAUSTARS.items()}
+    literature_taustars = {
+        name: load(file) for name, file in LITERATURE_TAUSTARS.items()
+    }
     plot_numerical(numerical)
     plot_atas(backtest)
     plot_scores(scores)
@@ -142,7 +145,9 @@ def main() -> None:
     plot_zstars(zstars)
     plot_ranks(ranks)
     plot_z_accuracy(ranks["z"])
-    plot_literature_results(literature, literature_scores, literature_zstars, literature_taustars)
+    plot_literature_results(
+        literature, literature_scores, literature_zstars, literature_taustars
+    )
 
 
 if __name__ == "__main__":

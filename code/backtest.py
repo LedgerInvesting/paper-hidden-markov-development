@@ -190,11 +190,7 @@ def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
             for fits in zip(*models.values())
         ]
     )
-    tau_star = np.array([
-        fit.tau_star
-        for fit
-        in models["changepoint"]
-    ])
+    tau_star = np.array([fit.tau_star for fit in models["changepoint"]])
     elpds = Score(raw_elpds, np.sum, ii, jj)
 
     def sqrt_mean(x, axis):
@@ -211,7 +207,6 @@ def score(data, models, lob) -> Tuple[Score, Score, np.ndarray, np.ndarray]:
 
     with open(RESULTS + f"/zstar-{lob}.json", "w") as f:
         json.dump(z_stars.tolist(), f)
-
 
     with open(RESULTS + f"/taustar-{lob}.json", "w") as f:
         json.dump(tau_star.tolist(), f)

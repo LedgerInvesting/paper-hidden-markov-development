@@ -3,8 +3,10 @@ Joint estimation of insurance loss development factors using Bayesian hidden Mar
 
 This repository holds code and the workflow to build the paper:
 
-    Goold, C. 2024. (preprint). *Joint estimation of insurance 
+    Goold, C. 2025. (preprint). *Joint estimation of insurance 
     loss development factors using Bayesian hidden Markov models*
+
+A preprint is available on Arxiv `here <https://arxiv.org/abs/2406.19903>`_.
 
 The code and data are available in the :code:`code/` and
 :code:`code/data/` directories, respectively.
