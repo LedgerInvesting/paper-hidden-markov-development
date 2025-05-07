@@ -4,8 +4,8 @@ are shown in Figure \ref{fig:backtest-scores}.
 When calculating ELPD, a small number of pointwise log densities 
 showed very small, negative values, indicating poor predictions
 on the out-of-sample data leading to numerical instability. 
-We decided to remove any log predictive
-densities for all models that had values $< -100$, which for a single
+Therefore, any log predictive
+densities for all models that had values $< -100$ were removed, which for a single
 out-of-sample data point was particularly low, given that most
 ELPD values for a single data point lie within [-5, 5]. This retained 99.7\%
 of values for the PP results, 99.1\% of values for WC, 99.6\%

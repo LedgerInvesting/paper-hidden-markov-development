@@ -1,7 +1,8 @@
 To validate the hidden Markov model implmentation, 
-we use both simulated examples
-to build intuition, alongside
-simulation-based calibration \citep{talts2018,modrak2023}.
+both simulated examples
+to build intuition alongside
+simulation-based calibration \citep{talts2018,modrak2023}
+was used.
 Simulation-based calibration leverages the self-consistency
 of the Bayesian joint distribution of parameters and
 data: fitting a Bayesian model to datasets generated
@@ -77,8 +78,9 @@ likely values) of [91, 100].
         for the joint log
         likelihood and the first ultimate loss
         distribution.
-        For each model, we sampled
-        4000 draws from the posterior distribution,
+        For each model, 
+        4000 draws from the posterior distribution
+        were sampled,
         and thinned the samples by 10 to remove any
         autocorrelation, meaning a maxmimum rank statistic
         of 400. Of the 1000 models,
