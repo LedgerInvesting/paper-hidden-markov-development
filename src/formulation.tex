@@ -23,7 +23,7 @@ with $\frac{N (M - 1)}{2}$ entries
 for a square matrix,
 is unknown and the goal of prediction.
 
-The generative process considered here, show in
+The generative process considered here, shown in
 Figure \ref{fig:schematic},
 is that cumulative losses
 in $\mathcal{Y}$ develop according to $i$) a period that is
@@ -172,18 +172,18 @@ models \citep{carlinchib1995}, which ensure parameters in the mixture
 not being sampled do not become implausible.
 
 \subsection{Model variants}
-Three variations of the hidden Markov model are used (Table \ref{table:variants}). 
-The base model (referred to as HMM) has homogeneous transition matrix $\Theta_{ij}$,
-and sets $\nu$ to zero. This implies that once the tail
+Three variations of the hidden Markov model were used (Table \ref{table:variants}). 
+The base model (referred to as HMM) had homogeneous transition matrix $\Theta_{ij}$,
+and set $\nu$ to zero. This implies that once the tail
 process is active, the model cannot switch back to the
 body process. This is the primary assumption underlying
 tail modelling generally: at some development point, the 
 losses smoothly develop to ultimate. Secondly, the HMM-$\nu$
-model estimates $\nu$, allowing for the tail to switch
+model estimated $\nu$, allowing for the tail to switch
 back to the body state. Some triangles may illustrate
 unexpected late-development volatility, at which point
 the more flexible body process is a better explanation
-of the data. Finally, the HMM-lag variant allows $\pi$
+of the data. Finally, the HMM-lag variant allowed $\pi$
 to vary across development periods, $\bm{\pi} = (\pi_{1}, 
 ..., \pi_{j - 1}, ..., \pi_{M - 1})$, on which 
 an ordered assumption is imposed such that the probability
@@ -221,7 +221,8 @@ without further data or covariates.
 \end{table}
 
 \subsection{Estimation}
-The models were fit Stan \citep{stan2017} using Bayesian inference
+The models were fit in the probabilistic programming language
+Stan \citep{stan2017} using Bayesian inference
 via Hamiltonian Monte Carlo, via the \texttt{cmdstanpy} \citep{cmdstanpy2024} 
 Python package and \texttt{cmdstan} \citep{cmdstan2024}
 command line interface to Stan, version 2.36.0.

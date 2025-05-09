@@ -41,6 +41,8 @@ PROGRAM_COLORS = {
 
 PATH = "figures/"
 
+DPI = 300
+
 DataType = List[List[int]]
 
 
@@ -191,7 +193,7 @@ def plot_numerical(numerical: Dict[str, Dict[str, List]]):
         ncol=3,  # len(labels_handles),
         bbox_to_anchor=(0.5, 1.075),
     )
-    plt.savefig(PATH + "numerical.png")
+    plt.savefig(PATH + "numerical.png", dpi=DPI)
     plt.close()
 
 
@@ -245,7 +247,7 @@ def plot_atas(data: List[List[DataType]]) -> None:
         ncol=len(LOB_COLORS),
         bbox_to_anchor=(0.5, 1.075),
     )
-    plt.savefig(PATH + "/atas.png")
+    plt.savefig(PATH + "/atas.png", dpi=DPI)
     plt.close()
 
 
@@ -355,7 +357,7 @@ def plot_scores(
         ncol=len(LOB_COLORS),
         bbox_to_anchor=(0.775, 1.1),
     )
-    plt.savefig(PATH + "/scores.png")
+    plt.savefig(PATH + "/scores.png", dpi=DPI)
     plt.close()
 
 
@@ -417,7 +419,7 @@ def plot_percentiles(percentiles: Dict[str, np.ndarray]):
         ncol=len(LOB_COLORS),
         bbox_to_anchor=(0.5, 1.075),
     )
-    plt.savefig(PATH + "/calibration.png")
+    plt.savefig(PATH + "/calibration.png", dpi=DPI)
     plt.close()
 
 
@@ -471,7 +473,7 @@ def plot_zstars(z_stars: Dict[str, np.ndarray]):
     cbar.set_ticklabels(["0", "(body)", "0.5", "(tail)", "1"])
     cbar.set_label("P(tail)", rotation=270)
 
-    plt.savefig(PATH + "/z_stars.png")
+    plt.savefig(PATH + "/z_stars.png", dpi=DPI)
     plt.close()
 
 
@@ -552,7 +554,7 @@ def plot_ranks(ranks: Dict[str, np.ndarray]) -> None:
         if not c:
             ax[r, c].set_ylabel("Frequency")
 
-    plt.savefig(PATH + "/ranks.png")
+    plt.savefig(PATH + "/ranks.png", dpi=DPI)
     plt.close()
 
 
@@ -568,7 +570,7 @@ def plot_z_accuracy(z_star: np.ndarray):
     ax.set_ylabel("Frequency")
     ax.set_xlabel(f"Average $z$ classification accuracy")
     ax.legend()
-    plt.savefig(PATH + "/z_star_accuracy.png")
+    plt.savefig(PATH + "/z_star_accuracy.png", dpi=DPI)
     plt.close()
 
 
@@ -705,5 +707,5 @@ def plot_literature_results(
                 ax[r, c].set_xlabel("ELPD difference" if c == 2 else "RMSE difference")
 
     fig.align_ylabels()
-    plt.savefig(PATH + "/literature.png")
+    plt.savefig(PATH + "/literature.png", dpi=DPI)
     plt.close()
